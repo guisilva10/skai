@@ -54,7 +54,7 @@ const imageVariants = {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32">
+    <section className="relative py-12 lg:py-24">
       <div className="mx-auto w-full p-8 lg:max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* --- CONTEÚDO DA ESQUERDA (ANIMADO) --- */}
@@ -64,21 +64,12 @@ export function HeroSection() {
             initial="hidden"
             animate="visible" // Anima no carregamento da página
           >
-            {/* Pill */}
-            <motion.div
-              variants={textItemVariants}
-              className="bg-accent/20 text-accent-foreground inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium"
-            >
-              <Sparkles className="h-4 w-4" />
-              Recomendações Personalizadas
-            </motion.div>
-
             {/* Título Principal */}
             <motion.h1
               variants={textItemVariants}
               className="text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl"
             >
-              Descubra Sua Rotina de Skincare Ideal em Minutos!
+              Descubra sua rotina de skincare ideal em minutos!
             </motion.h1>
 
             {/* Descrição */}
@@ -96,14 +87,14 @@ export function HeroSection() {
               variants={textItemVariants}
               className="flex flex-col gap-4 sm:flex-row"
             >
-              <Button size="lg" className="group text-base font-semibold">
+              <Button size="lg" className="group py-6 text-base font-semibold">
                 Iniciar Questionário
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-transparent text-base font-semibold"
+                className="bg-transparent py-6 text-base font-semibold"
               >
                 Saiba Mais
               </Button>
@@ -132,7 +123,7 @@ export function HeroSection() {
 
           {/* --- IMAGEM DA DIREITA (ANIMADA) --- */}
           <motion.div
-            className="hidden lg:relative lg:block"
+            className="relative hidden lg:block"
             variants={imageVariants}
             initial="hidden"
             animate="visible"
