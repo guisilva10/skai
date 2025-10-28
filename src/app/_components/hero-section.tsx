@@ -132,7 +132,7 @@ export function HeroSection() {
 
           {/* --- IMAGEM DA DIREITA (ANIMADA) --- */}
           <motion.div
-            className="relative"
+            className="hidden lg:relative"
             variants={imageVariants}
             initial="hidden"
             animate="visible"

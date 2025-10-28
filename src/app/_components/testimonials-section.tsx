@@ -56,15 +56,17 @@ export function TestimonialsSection() {
   return (
     <div className="mx-auto py-16 md:py-24 lg:max-w-7xl">
       {/* 3. Título da Seção Animado */}
-      <motion.h2
-        className="mb-12 text-center text-3xl font-medium text-gray-900 md:text-4xl lg:text-5xl dark:text-white"
-        variants={itemVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        O que nossos clientes dizem
-      </motion.h2>
+      <div className="px-8">
+        <motion.h2
+          className="mb-12 text-center text-3xl font-medium text-gray-900 lg:max-w-5xl lg:text-5xl dark:text-white"
+          variants={itemVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          O que nossos clientes dizem
+        </motion.h2>
+      </div>
 
       {/* 4. Grid de Feedbacks Animado (Contêiner) */}
       <motion.div
