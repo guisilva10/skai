@@ -35,7 +35,7 @@ const StripeContent = ({ items }: { items: string[] }) => (
 export const MarqueeCross = () => {
   return (
     <section className="relative flex h-48 w-full max-w-screen items-center justify-center overflow-hidden md:h-64 lg:py-24">
-      <div className="absolute flex rotate-[4deg] border bg-black p-3 text-white">
+      <div className="bg-foreground absolute flex rotate-[4deg] p-3 text-white">
         <div className="flex whitespace-nowrap">
           <StripeContent items={topicsStripeContent} />
           <span aria-hidden="true" className="flex">

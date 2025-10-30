@@ -58,7 +58,7 @@ export function TestimonialsSection() {
       {/* 3. Título da Seção Animado */}
       <div className="px-8">
         <motion.h2
-          className="mb-12 text-center text-3xl font-medium text-gray-900 lg:max-w-5xl lg:text-5xl dark:text-white"
+          className="mx-auto mb-12 text-center text-3xl font-medium lg:max-w-5xl lg:text-5xl"
           variants={itemVariants}
           initial="hidden"
           whileInView="visible"
@@ -88,7 +88,7 @@ export function TestimonialsSection() {
               containerClassName={cn("bg-primary h-full")}
               className="flex h-full flex-col justify-between p-6" // h-full para preencher o wrapper
             >
-              <p className="text-muted-foreground text-left text-lg/7 font-normal">
+              <p className="text-left text-lg/7 font-normal text-white">
                 "{item.quote}"
               </p>
 

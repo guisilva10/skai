@@ -162,12 +162,12 @@ export function CTASection() {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
                 asChild
-                className="group rounded-full bg-black px-4 py-6 text-base font-semibold text-white transition-all duration-300 hover:bg-black/80 lg:w-[23em]"
+                className="group bg-foreground hover:bg-foreground/80 rounded-full px-4 py-6 text-base font-semibold text-white transition-all duration-300 lg:w-[23em]"
               >
                 <Link href="/quiz" className="px-0">
                   Iniciar Questionário
                   <span className="rounded-full bg-white p-1 transition-all duration-300 group-hover:translate-x-1">
-                    <ArrowRight className="size-4 text-black" />
+                    <ArrowRight className="text-foreground size-4" />
                   </span>
                 </Link>
               </Button>

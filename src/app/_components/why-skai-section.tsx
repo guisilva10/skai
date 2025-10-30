@@ -58,7 +58,7 @@ export function WhySkaiSection() {
       <div className="px-8">
         {/* Título animado */}
         <motion.h4
-          className="mx-auto max-w-5xl text-center text-3xl font-medium tracking-tight text-black lg:text-5xl lg:leading-tight dark:text-white"
+          className="mx-auto max-w-5xl text-center text-3xl font-medium tracking-tight lg:text-5xl lg:leading-tight dark:text-white"
           variants={fadeUpVariant}
           initial="hidden"
           whileInView="visible"
@@ -130,12 +130,6 @@ const FeatureCard = ({
     </motion.div>
   );
 };
-
-// ... (O restante dos componentes: FeatureTitle, FeatureDescription, Skeletons e Globe)
-// ... (Não é necessário colar o resto, pois eles permanecem iguais ao código anterior)
-// ... (Cole apenas até aqui e mantenha o resto do seu arquivo)
-
-// ... (Resto do seu código: FeatureTitle, FeatureDescription, SkeletonOne, SkeletonTwo, etc.)
 
 const FeatureTitle = ({ children }: { children?: React.ReactNode }) => {
   return (
