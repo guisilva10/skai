@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - git-commit-msg-linter
+  - prisma
+  - sharp
+  - unrs-resolver
