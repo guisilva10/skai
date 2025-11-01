@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -179,6 +179,7 @@ export default function SkincareQuestionnaire() {
     },
     onError: (error) => {
       // Erro de rede ou erro lançado pela Server Action
+      console.log(error);
       toast.error("Erro no servidor");
     },
   });

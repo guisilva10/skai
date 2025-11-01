@@ -9,7 +9,7 @@ import {
 import { redirect } from "next/navigation";
 import SkincareQuestionnaire from "./_components/questions-form";
 
-export default async function SkincarePage() {
+export default async function Page() {
   const session = await auth();
 
   if (!session?.user) {

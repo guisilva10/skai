@@ -1,21 +1,26 @@
 import * as z from "zod";
-// 1. Importar o Enum SkinType gerado pelo Prisma
-import { SkinType } from "@/generated/prisma/client";
 
-// 2. Exportar o Enum para que outros arquivos possam usá-lo
-// (Isso é útil se o Prisma client não for importado em outro lugar)
-export { SkinType };
+// 1. Removida a importação do '@prisma/client'.
+// Este arquivo agora é 100% client-safe e não causará erros de build.
 
-// -------------------------------------
+// 2. Definir os tipos de pele como um 'const' tuple
+// Isto é o que o z.enum espera para inferir o tipo corretamente.
+const skinTypes = [
+  "OILY",
+  "DRY",
+  "COMBINATION",
+  "NORMAL",
+  "SENSITIVE",
+] as const;
 
 // Opções para os formulários
-// 3. Usar o Enum importado do Prisma
+// 3. Usar os valores de string diretamente.
 export const skinTypeOptions = [
-  { value: SkinType.OILY, label: "Oleosa" },
-  { value: SkinType.DRY, label: "Seca" },
-  { value: SkinType.COMBINATION, label: "Mista" },
-  { value: SkinType.NORMAL, label: "Normal" },
-  { value: SkinType.SENSITIVE, label: "Sensível" },
+  { value: "OILY", label: "Oleosa" },
+  { value: "DRY", label: "Seca" },
+  { value: "COMBINATION", label: "Mista" },
+  { value: "NORMAL", label: "Normal" },
+  { value: "SENSITIVE", label: "Sensível" },
 ] as const;
 
 export const concernOptions = [
@@ -29,8 +34,9 @@ export const concernOptions = [
 
 // Schema de validação do Zod para o formulário
 export const skinProfileSchema = z.object({
-  // 4. Usar z.nativeEnum com o Enum do Prisma
-  skinType: z.nativeEnum(SkinType),
+  // 4. Usar z.enum() com o const tuple.
+  // Isso resolve os erros de tipo anteriores E o erro de build.
+  skinType: z.enum(skinTypes),
   concerns: z
     .array(z.string())
     .refine(
