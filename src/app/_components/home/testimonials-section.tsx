@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/app/_lib/utils";
-import { WobbleCard } from "@/components/ui/wobble-card";
+import { WobbleCard } from "@/app/_components/ui/wobble-card";
 import { motion } from "framer-motion"; // 1. Importe o motion
 
 // Dados dos feedbacks (sem alteração)

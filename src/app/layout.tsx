@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import QueryProvider from "./_components/providers";
+import { Toaster } from "./_components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "SKAI - Recomendações Personalizadas de Skincare",
@@ -14,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <QueryProvider>
+          {children}
+          <Toaster />
+        </QueryProvider>
+      </body>
     </html>
   );
 }

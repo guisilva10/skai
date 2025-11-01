@@ -4,6 +4,7 @@
 import { Button } from "@/app/_components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion"; // Importe o motion
+import Link from "next/link";
 
 /**
  * Variantes de animação para o contêiner de texto (esquerda).
@@ -87,9 +88,15 @@ export function HeroSection() {
               variants={textItemVariants}
               className="flex flex-col gap-4 sm:flex-row"
             >
-              <Button size="lg" className="group py-6 text-base font-semibold">
-                Iniciar Questionário
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              <Button
+                size="lg"
+                className="group py-6 text-base font-semibold"
+                asChild
+              >
+                <Link href="/auth" prefetch>
+                  Iniciar Questionário
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
               </Button>
               <Button
                 size="lg"
