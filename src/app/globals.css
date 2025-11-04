@@ -64,8 +64,8 @@
   --card-foreground: oklch(0.2264 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2264 0 0);
-  --primary: oklch(0.643 0.2601 359.51);
-  --primary-foreground: oklch(1 0 0);
+  --primary: oklch(0.6923 0.0674 141.46);
+  --primary-foreground: oklch(0.9211 0.0255 134.27);
   --secondary: oklch(0.9019 0.0278 40.19);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
@@ -98,7 +98,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.643 0.2601 359.51);
+  --primary: oklch(0.6923 0.0674 141.46);
   --primary-foreground: oklch(0.21 0.006 285.885);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
@@ -150,12 +150,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(#fc0388, #fc0388, #fc0388, #fc0388);
+    background: linear-gradient(#dee9d8, #dee9d8, #85a780, #85a780);
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(#fc0388, #fc0388, #fc0388, #fc0388);
+    background: linear-gradient(#dee9d8, #dee9d8, #85a780, #85a780);
   }
 }
 

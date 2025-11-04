@@ -50,7 +50,7 @@ const featuredProductsData = [
 
 export function FeaturedProducts() {
   return (
-    <section className="mx-auto w-full px-8 py-12 lg:max-w-7xl">
+    <section className="mx-auto w-full px-8 py-12 lg:max-w-7xl" id="products">
       <div className="container mx-auto px-4">
         <h2 className="mb-12 text-center text-3xl font-medium tracking-tight text-black md:text-4xl lg:text-5xl dark:text-white">
           Produtos que Fazem a Diferença

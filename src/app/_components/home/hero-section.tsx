@@ -5,6 +5,7 @@ import { Button } from "@/app/_components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion"; // Importe o motion
 import Link from "next/link";
+import Header from "./header";
 
 /**
  * Variantes de animação para o contêiner de texto (esquerda).
@@ -55,8 +56,9 @@ const imageVariants = {
 
 export function HeroSection() {
   return (
-    <section className="relative py-12 lg:py-24">
-      <div className="mx-auto w-full p-8 lg:max-w-7xl">
+    <section className="relative mx-auto min-h-screen py-12">
+      <Header />
+      <div className="mx-auto w-full px-8 py-12 lg:max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* --- CONTEÚDO DA ESQUERDA (ANIMADO) --- */}
           <motion.div
@@ -102,8 +104,9 @@ export function HeroSection() {
                 size="lg"
                 variant="outline"
                 className="bg-transparent py-6 text-base font-semibold"
+                asChild
               >
-                Saiba Mais
+                <Link href="#cta">Saiba Mais</Link>
               </Button>
             </motion.div>
 

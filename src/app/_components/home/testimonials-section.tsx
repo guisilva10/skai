@@ -54,7 +54,7 @@ const itemVariants = {
 // Componente da Seção
 export function TestimonialsSection() {
   return (
-    <div className="mx-auto py-16 md:py-24 lg:max-w-7xl">
+    <div className="mx-auto py-16 md:py-24 lg:max-w-7xl" id="testimonials">
       {/* 3. Título da Seção Animado */}
       <div className="px-8">
         <motion.h2

@@ -8,8 +8,8 @@ import Link from "next/link";
 export function CTASection() {
   return (
     <section
-      id="contato"
-      className="relative flex w-full flex-col items-center justify-center overflow-visible px-5 pb-10"
+      id="cta"
+      className="relative flex w-full flex-col items-center justify-center overflow-visible px-8 py-12 pb-10"
     >
       <div className="absolute inset-0 top-[-90px]">
         <svg
@@ -164,7 +164,7 @@ export function CTASection() {
                 asChild
                 className="group bg-foreground hover:bg-foreground/80 rounded-full px-4 py-6 text-base font-semibold text-white transition-all duration-300 lg:w-[23em]"
               >
-                <Link href="/quiz" className="px-0">
+                <Link href="/auth" className="px-0">
                   Iniciar Questionário
                   <span className="rounded-full bg-white p-1 transition-all duration-300 group-hover:translate-x-1">
                     <ArrowRight className="text-foreground size-4" />
