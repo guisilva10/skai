@@ -1,9 +1,7 @@
 "use server";
 
 import { z } from "zod";
-
-import { auth } from "@/services/auth"; // Caminho do seu arquivo auth
-
+import { auth } from "@/services/auth";
 import { revalidatePath } from "next/cache";
 import {
   ProductRecommendation,
@@ -12,7 +10,6 @@ import {
 } from "@/types";
 import { db } from "@/services/database/prisma";
 
-// Tipos de Erro para a Action
 type ActionResponse<T> =
   | {
       success: true;
@@ -23,33 +20,6 @@ type ActionResponse<T> =
       error: { message: string; validationErrors?: z.ZodIssue[] };
     };
 
-/**
- * Busca o perfil de pele existente do usuário logado.
- * Esta action será chamada pelo `useQuery`.
- */
-export async function getSkinProfile() {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error("Usuário não autenticado.");
-    }
-
-    const profile = await db.skinProfile.findUnique({
-      where: { userId: session.user.id },
-    });
-
-    return profile;
-  } catch (error) {
-    console.error("[GET_SKIN_PROFILE_ERROR]", error);
-    // Para useQuery, é melhor lançar o erro para o `error` state funcionar
-    throw new Error("Falha ao buscar perfil de pele.");
-  }
-}
-
-/**
- * Salva o perfil de pele e retorna recomendações de produtos.
- * Esta action será chamada pelo `useMutation`.
- */
 export async function saveProfileAndGetRecommendations(
   data: SkinProfileFormData,
 ): Promise<ActionResponse<ProductRecommendation[]>> {
@@ -59,7 +29,6 @@ export async function saveProfileAndGetRecommendations(
       return { success: false, error: { message: "Usuário não autenticado." } };
     }
 
-    // 1. Validar os dados com Zod (boa prática, mesmo que o formulário já valide)
     const validation = skinProfileSchema.safeParse(data);
     if (!validation.success) {
       return {
@@ -71,7 +40,6 @@ export async function saveProfileAndGetRecommendations(
       };
     }
 
-    // 2. Salvar no banco de dados (usando `upsert`)
     await db.skinProfile.upsert({
       where: { userId: session.user.id },
       update: validation.data,
@@ -81,8 +49,6 @@ export async function saveProfileAndGetRecommendations(
       },
     });
 
-    // 3. Lógica de "Negócio" (Dummy) para gerar recomendações
-    // Em um app real, isso seria um algoritmo mais complexo ou chamada de API
     const recommendations: ProductRecommendation[] = [];
 
     if (data.skinType === "OILY") {
@@ -134,10 +100,8 @@ export async function saveProfileAndGetRecommendations(
       purchaseUrl: "https://exemplo.com/produto/protetor-solar-fps50",
     });
 
-    // 4. Revalidar o path (opcional, mas bom se esta página mostrar o perfil)
-    revalidatePath("/dashboard/skincare");
+    revalidatePath("/app");
 
-    // 5. Retornar os dados com sucesso
     return { success: true, data: recommendations };
   } catch (error) {
     console.error("[SAVE_PROFILE_ERROR]", error);

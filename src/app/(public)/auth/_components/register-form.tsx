@@ -14,47 +14,51 @@ import { useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormData, loginSchema } from "@/schemas/auth/login-schema";
-import { toast } from "sonner";
+import {
+  RegisterFormData,
+  registerSchema,
+} from "@/schemas/auth/register-schema";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/app/_components/ui/form";
+import { registerUser } from "@/server/auth/register-user";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    startTransition(async () => {
-      try {
-        await signIn("credentials", {
-          email: data.email,
-          password: data.password,
-
-          callbackUrl: "/app",
-        });
-
-        toast.success("Seja bem vindo(a)");
-      } catch (error) {
-        toast.error("Erro ao fazer login, tente novamente!");
-        console.log(error);
-      }
-    });
+  const onRegisterSubmit = async (values: RegisterFormData) => {
+    try {
+      startTransition(async () => {
+        await registerUser(values);
+      });
+      toast.success("Conta criada com sucesso");
+      form.reset();
+      router.replace("/auth/login");
+    } catch (error) {
+      toast.error("Erro ao criar conta");
+    }
   };
 
   const handleGoogleSignIn = async () => {
@@ -69,14 +73,31 @@ export function LoginForm({
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
-            <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              className="p-6 md:p-8"
+              onSubmit={form.handleSubmit(onRegisterSubmit)}
+            >
               <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
                   <h1 className="text-2xl font-bold">Seja bem vinda(o)</h1>
                   <p className="text-muted-foreground text-balance">
-                    Faça o login utilizando suas credenciais
+                    Crie sua conta para fazer parte da SKAI
                   </p>
                 </div>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <Input placeholder="ex: Guilherme Silva" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -105,8 +126,22 @@ export function LoginForm({
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirme sua senha</FormLabel>
+                      <FormControl>
+                        <Input placeholder="*******" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Field>
-                  <Button type="submit">Login</Button>
+                  <Button type="submit">Criar conta</Button>
                 </Field>
                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                   Ou continue com
@@ -128,8 +163,7 @@ export function LoginForm({
                   </Button>
                 </Field>
                 <FieldDescription className="text-center">
-                  Não possuí uma conta ?{" "}
-                  <a href="/auth/register">Cadastre-se</a>
+                  Já possuí uma conta ? <a href="/auth/login">Fazer Login</a>
                 </FieldDescription>
               </FieldGroup>
             </form>

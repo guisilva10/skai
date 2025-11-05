@@ -164,7 +164,7 @@ export function CTASection() {
                 asChild
                 className="group bg-foreground hover:bg-foreground/80 rounded-full px-4 py-6 text-base font-semibold text-white transition-all duration-300 lg:w-[23em]"
               >
-                <Link href="/auth" className="px-0">
+                <Link href="/auth/login" className="px-0" prefetch>
                   Iniciar Questionário
                   <span className="rounded-full bg-white p-1 transition-all duration-300 group-hover:translate-x-1">
                     <ArrowRight className="text-foreground size-4" />

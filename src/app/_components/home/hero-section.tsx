@@ -78,7 +78,7 @@ export function HeroSection() {
                 className="group py-6 text-base font-semibold"
                 asChild
               >
-                <Link href="/auth" prefetch>
+                <Link href="/auth/login" prefetch>
                   Iniciar Questionário
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </Link>

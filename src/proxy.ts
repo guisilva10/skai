@@ -7,16 +7,16 @@ export default function proxy(request: NextRequest) {
   );
   const pathname = request.nextUrl.pathname;
 
-  if (pathname === "/auth" && token) {
+  if (pathname === "/auth/login" && token) {
     const redirectUrl = getUrl("/app");
     console.log(`Redirecionando para: ${redirectUrl}`);
     return NextResponse.redirect(new URL(getUrl("/app")));
   }
 
   if (pathname.includes("/app") && !token) {
-    const redirectUrl = getUrl("/auth");
+    const redirectUrl = getUrl("/auth/login");
     console.log(`Redirecionando para: ${redirectUrl}`);
-    return NextResponse.redirect(new URL(getUrl("/auth")));
+    return NextResponse.redirect(new URL(getUrl("/auth/login")));
   }
 }
 

@@ -45,13 +45,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/_components/ui/card";
-import {
-  getSkinProfile,
-  saveProfileAndGetRecommendations,
-} from "@/server/skin-profile/actions";
+import { saveProfileAndGetRecommendations } from "@/server/skin-profile/create-skincare-profile";
 import { toast } from "sonner";
+import { getSkinProfile } from "@/server/skin-profile/get-skin-profile";
 
-// Componente de Loading para o formulário
 function FormSkeleton() {
   return (
     <div className="space-y-6">
@@ -66,7 +63,6 @@ function FormSkeleton() {
   );
 }
 
-// Componente para exibir os resultados
 function RecommendationResults({
   recommendations,
   onReset,
@@ -121,26 +117,22 @@ function RecommendationResults({
   );
 }
 
-// Componente Principal do Questionário
 export default function SkincareQuestionnaire() {
   const queryClient = useQueryClient();
 
-  // 1. State para armazenar os resultados da mutação
   const [recommendations, setRecommendations] = useState<
     ProductRecommendation[]
   >([]);
 
-  // 2. `useQuery` para buscar o perfil de pele existente
   const {
     data: existingProfile,
     isLoading: isProfileLoading,
     isError: isProfileError,
   } = useQuery({
-    queryKey: ["skinProfile"], // Chave de cache
-    queryFn: () => getSkinProfile(), // A Server Action
+    queryKey: ["skinProfile"],
+    queryFn: () => getSkinProfile(),
   });
 
-  // 3. Configuração do `react-hook-form`
   const form = useForm<SkinProfileFormData>({
     resolver: zodResolver(skinProfileSchema),
     defaultValues: {
@@ -150,7 +142,6 @@ export default function SkincareQuestionnaire() {
     },
   });
 
-  // 4. Efeito para preencher o formulário quando `useQuery` carregar os dados
   useEffect(() => {
     if (existingProfile) {
       form.reset({
@@ -161,37 +152,27 @@ export default function SkincareQuestionnaire() {
     }
   }, [existingProfile, form]);
 
-  // 5. `useMutation` para salvar o perfil e obter recomendações
   const { mutate, isPending: isSaving } = useMutation({
-    mutationFn: saveProfileAndGetRecommendations, // A Server Action
+    mutationFn: saveProfileAndGetRecommendations,
     onSuccess: (response) => {
       if (response.success) {
-        // Sucesso!
-        setRecommendations(response.data); // Armazena os resultados no state
+        setRecommendations(response.data);
         toast.success("Seu perfil foi salvo com sucesso");
-        // Invalida o cache de 'skinProfile' para que o `useQuery` busque dados frescos
-        // se o usuário recarregar ou navegar
         queryClient.invalidateQueries({ queryKey: ["skinProfile"] });
       } else {
-        // Erro de validação ou de lógica da action
         toast.error("Erro ao salvar perfil!.");
       }
     },
     onError: (error) => {
-      // Erro de rede ou erro lançado pela Server Action
       console.log(error);
       toast.error("Erro no servidor");
     },
   });
 
-  // 6. Handler de submit do formulário
   function onSubmit(data: SkinProfileFormData) {
-    mutate(data); // Chama a mutação
+    mutate(data);
   }
 
-  // 7. Renderização Condicional
-
-  // Estado de Erro do `useQuery`
   if (isProfileError) {
     return (
       <Alert variant="destructive">
@@ -205,22 +186,19 @@ export default function SkincareQuestionnaire() {
     );
   }
 
-  // Estado de Loading do `useQuery`
   if (isProfileLoading) {
     return <FormSkeleton />;
   }
 
-  // Estado de Sucesso (mostra resultados)
   if (recommendations.length > 0) {
     return (
       <RecommendationResults
         recommendations={recommendations}
-        onReset={() => setRecommendations([])} // Limpa os resultados para mostrar o form
+        onReset={() => setRecommendations([])}
       />
     );
   }
 
-  // Estado Padrão (mostra o formulário)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
