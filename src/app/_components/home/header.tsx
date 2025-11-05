@@ -44,7 +44,7 @@ const CtaButton = ({
   inSheet?: boolean;
 }) => (
   <Button
-    className={`group relative flex items-center overflow-hidden rounded-full transition-all duration-300`}
+    className={`group relative flex items-center overflow-hidden rounded-lg py-6 transition-all duration-300`}
   >
     <Link
       href="#cta"
@@ -52,7 +52,7 @@ const CtaButton = ({
     >
       Quero Começar
       <p
-        className={`flex items-center justify-center rounded-full bg-black p-1 transition-all duration-300`}
+        className={`flex size-8 items-center justify-center rounded-full bg-black p-1 transition-all duration-300 group-hover:translate-x-1`}
       >
         <RocketIcon fill="#fff" />
       </p>
@@ -113,7 +113,10 @@ const Header = () => {
               <span className="sr-only">Abrir menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="flex flex-col">
+          <SheetContent
+            side="right"
+            className="flex flex-col overflow-y-auto px-6 py-4"
+          >
             {/* Logo no topo do Sheet */}
             <div className="border-b pb-4">
               <Logo scrolled={false} />
