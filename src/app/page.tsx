@@ -3,7 +3,7 @@ import { MarqueeCross } from "./_components/home/marquee-cross";
 import { HeroSection } from "./_components/home/hero-section";
 import StepByStepSection from "./_components/home/step-by-step";
 import SmoothScroll from "./_components/home/scroll-smooth";
-import { FeaturedProducts } from "./_components/home/products-section";
+import { SkincareRoutine } from "./_components/home/products-section";
 import { WhySkaiSection } from "./_components/home/why-skai-section";
 import { TestimonialsSection } from "./_components/home/testimonials-section";
 import { FAQSection } from "./_components/home/faq-section";
@@ -20,7 +20,7 @@ export default function Home() {
         </AuroraBackground>
         <MarqueeCross />
         <StepByStepSection />
-        <FeaturedProducts />
+        <SkincareRoutine />
         <WhySkaiSection />
         <TestimonialsSection />
         <FAQSection />

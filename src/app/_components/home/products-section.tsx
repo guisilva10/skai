@@ -1,68 +1,65 @@
-// components/FeaturedProducts.tsx
 "use client";
 
-import { ProductCard } from "./products-card";
+import { RoutineStepCard } from "./products-card"; // 1. Importa o NOVO card
+import { SoapDispenserDroplet, Droplet, Sun, Wand2 } from "lucide-react"; // 2. Ícones para os passos
 
-// Dados de exemplo para seus produtos
-// Substitua estas informações pelos seus produtos reais
-const featuredProductsData = [
+// 3. Novos dados focados nos passos da rotina
+const routineStepsData = [
   {
-    id: "prod1",
-    name: "Sérum Hidratante com Ácido Hialurônico",
+    id: "step1",
+    stepNumber: "Passo 1",
+    title: "Limpeza",
     description:
-      "Hidrata profundamente a pele, reduzindo linhas finas e melhorando a elasticidade. Ideal para todos os tipos de pele.",
-    imageUrl: "/products/product-01.jpg",
-    brand: "BeautyLab",
-    price: "R$ 89,90",
-    link: "https://www.exemplo.com/serum-hidratante",
+      "Comece com um gel ou espuma de limpeza para remover impurezas, oleosidade e preparar a pele.",
+    IconComponent: SoapDispenserDroplet, // Ícone de "Sabão"
   },
   {
-    id: "prod2",
-    name: "Gel de Limpeza Facial Suave",
+    id: "step2",
+    stepNumber: "Passo 2",
+    title: "Tratamento",
     description:
-      "Limpa sem ressecar, removendo impurezas e maquiagem. Perfeito para peles sensíveis e uso diário.",
-    imageUrl: "/products/product-02.jpg", // Placeholder funcional
-    brand: "Purity Skincare",
-    price: "R$ 45,50",
-    link: "https://www.exemplo.com/gel-limpeza-suave",
+      "Aplique séruns específicos (como Vitamina C ou Ácido Hialurônico) para tratar necessidades da sua pele.",
+    IconComponent: Wand2, // Ícone de "Magia/Tratamento"
   },
   {
-    id: "prod3",
-    name: "Protetor Solar Facial FPS 50",
+    id: "step3",
+    stepNumber: "Passo 3",
+    title: "Hidratação",
     description:
-      "Proteção UVA/UVB de amplo espectro com toque seco. Essencial para prevenir envelhecimento precoce e manchas.",
-    imageUrl: "/products/product-03.jpg", // Placeholder funcional
-    brand: "SunGuard",
-    price: "R$ 72,00",
-    link: "https://www.exemplo.com/protetor-solar",
+      "Use um hidratante adequado ao seu tipo de pele para reter a umidade e fortalecer a barreira cutânea.",
+    IconComponent: Droplet, // Ícone de "Gota"
   },
   {
-    id: "prod4",
-    name: "Creme Anti-idade com Retinol",
+    id: "step4",
+    stepNumber: "Passo 4",
+    title: "Proteção",
     description:
-      "Estimula a renovação celular, combatendo rugas e linhas de expressão para uma pele mais firme.",
-    imageUrl: "/products/product-04.jpg", // Placeholder funcional
-    brand: "Eternal Youth",
-    price: "R$ 120,00",
-    link: "https://www.exemplo.com/creme-retinol",
+      "Finalize com protetor solar (FPS 30+) todas as manhãs para prevenir danos e o envelhecimento precoce.",
+    IconComponent: Sun, // Ícone de "Sol"
   },
 ];
 
-export function FeaturedProducts() {
+// 4. Componente renomeado
+export function SkincareRoutine() {
   return (
-    <section className="mx-auto w-full px-8 py-12 lg:max-w-7xl" id="products">
+    <section
+      className="mx-auto w-full px-8 py-12 lg:max-w-7xl"
+      id="products" // 5. ID da seção atualizado
+    >
       <div className="container mx-auto px-4">
+        {/* 6. Textos atualizados para refletir a nova ideia */}
         <h2 className="mb-12 text-center text-3xl font-medium tracking-tight text-black md:text-4xl lg:text-5xl dark:text-white">
-          Produtos que Fazem a Diferença
+          Sua Rotina de Skincare Ideal
         </h2>
         <p className="mx-auto mb-16 max-w-2xl text-center text-lg text-gray-600 dark:text-gray-300">
-          Descubra os produtos recomendados que vão transformar sua rotina de
-          skincare e trazer resultados incríveis para sua pele.
+          Construir uma rotina eficaz é mais simples do que parece. Siga estes
+          passos essenciais para uma pele saudável e radiante.
         </p>
 
+        {/* 7. O grid agora usa os novos dados e o novo componente de card */}
         <div className="grid grid-cols-1 justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {featuredProductsData.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {routineStepsData.map((step) => (
+            <RoutineStepCard key={step.id} step={step} />
           ))}
         </div>
       </div>
