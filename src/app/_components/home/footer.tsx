@@ -5,13 +5,10 @@ export function Footer() {
   return (
     <footer className="border-border border-t">
       <div className="mx-auto w-full px-4 py-12 md:py-16 lg:max-w-7xl lg:px-8">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link href="/" className="mb-4 flex items-center gap-2">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                <Sparkles className="text-primary-foreground h-5 w-5" />
-              </div>
-              <span className="text-xl font-semibold">SKAI</span>
+            <Link href="/" className="lex items-center">
+              <img src="/logo.svg" alt="LOGO SKAI" className="size-30" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Recomendações personalizadas de skincare impulsionadas por

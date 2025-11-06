@@ -23,15 +23,7 @@ const navLinks = [
 
 const Logo = ({ scrolled }: { scrolled: boolean }) => (
   <div className="flex items-center space-x-2">
-    <div
-      className={`to-primary via-primary/70 from-primary/50 flex size-10 items-center justify-center rounded-lg bg-linear-to-r p-1 transition-all duration-300`}
-    >
-      <SparklesIcon
-        fill="#ffff"
-        className={`text-white transition-all duration-300`}
-      />
-    </div>
-    <p className={`text-2xl font-bold uppercase`}>SKAI</p>
+    <img src="/logo.svg" alt="LOGO SKAI" className="size-25" />
   </div>
 );
 
