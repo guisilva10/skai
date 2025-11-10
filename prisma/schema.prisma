@@ -62,7 +62,6 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -78,23 +77,96 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
-// ADICIONE ESTE MODELO
 model SkinProfile {
-  id          String   @id @default(cuid())
-  userId      String   @unique // Garante que cada usuário tenha apenas um perfil
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skinType    SkinType
-  concerns    String[] // Armazena um array de preocupações, ex: ["acne", "aging"]
-  sensitivity String // Pode ser "low", "medium", "high" ou uma descrição
+  id              String            @id @default(cuid())
+  skinType        SkinType?
+  skincareRoutine SkinRoutine?
+  sunExposure     SunExposureLevel?
+  knownAllergies  KnownAllergies?
+  pregnancyStatus PregnancyStatus?
+  skinMedication  SkinMedication?
+  skinCondition   SkinCondition?
+  poreCondition   PoreCondition?
+  smokingHabit    SmokingHabit?
+  waterIntake     WaterIntake?
 
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 enum SkinType {
-  OILY
-  DRY
-  COMBINATION
-  NORMAL
-  SENSITIVE
+  OLEOSA
+  SECA
+  MISTA
+  SENSIVEL
+}
+
+enum SkinRoutine {
+  NAO_COMEÇANDO_AGORA
+  SIM_APENAS_LIMPEZA_E_HIDRATANTE
+  SIM_VARIOS_PRODUTOS
+  SIM_ROTINA_COMPLETA_COM_ATIVOS
+}
+
+enum SunExposureLevel {
+  BAIXO
+  MODERADO
+  ALTO
+}
+
+enum KnownAllergies {
+  NAO_TENHO
+  FRAGRANCIAS
+  ACIDOS_E_ATIVOS_FORTES
+  MULTIPLAS_SENSIBILIDADES
+}
+
+enum PregnancyStatus {
+  NAO
+  GRAVIDA
+  AMAMENTANDO
+  GRAVIDA_E_AMAMENTANDO
+}
+
+enum SkinMedication {
+  NAO_TOMA
+  ISOTRETINOINA
+  ESPIRONOLACTONA
+  OUTRAS_MEDICACOES_DERMATOLOGICAS
+  MULTIPLAS_MEDICACOES
+}
+
+enum SkinCondition {
+  NAO_TENHO_CONDICOES_ESPECIAIS
+  DERMATITE_ATORPICA_SEBORREICA_OU_DE_CONTATO
+  ROSACEA
+  ECZEMA
+  PSORIASE
+  HISTORICO_DE_HIPERSENSIBILIDADE_CUTANEA
+  MULTIPLAS_CONDICOES
+}
+
+enum PoreCondition {
+  LIMPOS_E_POUCO_VISIVEIS
+  VISIVEIS_MAS_SEM_PONTOS_PRETOS
+  DILATADOS_PRINCIPALMENTE_NA_ZONA_T
+  COM_PRESENCA_DE_PONTOS_PRETOS_CRAVOS
+  DILATADOS_COM_MUITOS_PONTOS_PRETOS
+}
+
+enum SmokingHabit {
+  NAO_FUMO
+  EX_FUMANTE
+  FUMO_OCASIONALMENTE
+  FUMO_MODERADAMENTE
+  FUMO_FREQUENTEMENTE
+}
+
+enum WaterIntake {
+  MENOS_DE_1L
+  DE_1_A_2L
+  DE_2_A_3L
+  MAIS_DE_3L
 }

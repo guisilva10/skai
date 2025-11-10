@@ -27,7 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/app/_components/ui/form";
-import { registerUser } from "@/server/auth/register-user";
+import { registerUser } from "@/features/auth/server/register-user";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 

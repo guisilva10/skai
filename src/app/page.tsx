@@ -9,7 +9,6 @@ import { TestimonialsSection } from "./_components/home/testimonials-section";
 import { FAQSection } from "./_components/home/faq-section";
 import { CTASection } from "./_components/home/cta-section";
 import { Footer } from "./_components/home/footer";
-// import Header from "./_components/home/header";
 
 export default function Home() {
   return (
