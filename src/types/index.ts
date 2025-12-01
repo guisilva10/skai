@@ -1,90 +1,105 @@
-import * as z from "zod";
+export type SkinProfileFormData = {
+  // 1. Identificação do Tipo de Pele
+  feelsTightAfterWashing?: boolean;
+  getsShinySkin?: boolean;
+  oilProductionArea?: "tzone" | "nose" | "fullface" | "minimal";
+  hasDilatedPores?: boolean;
+  dilatedPoresLocation?: "tzone" | "cheeks" | "fullface" | "none";
+  hasFlakingSkin?: boolean;
+  getsRedEasily?: boolean;
+  cosmeticsBurn?: boolean;
 
-const skinTypes = ["OLEOSA", "SECA", "MISTA", "SENSIVEL"] as const;
+  // 2. Histórico Dermatológico
+  hasAcne?: boolean;
+  hasRosacea?: boolean;
+  hasAtopicDermatitis?: boolean;
+  hasSeborrheicDermatitis?: boolean;
+  hasMelasma?: boolean;
+  hasPsoriasis?: boolean;
+  currentTreatment?: string;
+  currentMedication?: string;
+  recentProcedures?: boolean;
+  procedureType?: "peeling" | "laser" | "other";
+  procedureDate?: string;
 
-const skinRoutineTypes = [
-  "NAO_COMEÇANDO_AGORA",
-  "SIM_APENAS_LIMPEZA_E_HIDRATANTE",
-  "SIM_VARIOS_PRODUTOS",
-  "SIM_ROTINA_COMPLETA_COM_ATIVOS",
-] as const;
+  // 3. Rotina Atual
+  morningProducts?: string[];
+  nightProducts?: string[];
+  routineSteps?: number;
 
-const sunExposureLevels = ["BAIXO", "MODERADO", "ALTO"] as const;
+  // 4. Objetivos
+  mainGoal?: string;
+  secondaryGoals?: string[];
 
-const knownAllergiesTypes = [
-  "NAO_TENHO",
-  "FRAGRANCIAS",
-  "ACIDOS_E_ATIVOS_FORTES",
-  "MULTIPLAS_SENSIBILIDADES",
-] as const;
+  // 5. Hábitos e Estilo de Vida
+  sunExposure?: "low" | "moderate" | "high" | "outdoor_work";
+  usesSunscreenDaily?: boolean;
+  usesMakeup?: "daily" | "occasional" | "never";
+  cleansingFrequency?: "once" | "twice" | "sometimes";
+  diet?: "high_sugar" | "processed" | "balanced";
 
-const pregnancyStatusTypes = [
-  "NAO",
-  "GRAVIDA",
-  "AMAMENTANDO",
-  "GRAVIDA_E_AMAMENTANDO",
-] as const;
+  // 6. Ambiente e Fatores Externos
+  climate?: "humid" | "dry" | "cold" | "hot";
+  sleepsWithAC?: boolean;
+  intensiveWorkout?: boolean;
 
-const skinMedicationTypes = [
-  "NAO_TOMA",
-  "ISOTRETINOINA",
-  "ESPIRONOLACTONA",
-  "OUTRAS_MEDICACOES_DERMATOLOGICAS",
-  "MULTIPLAS_MEDICACOES",
-] as const;
+  // 7. Sensibilidade e Alergias
+  hasAllergies?: boolean;
+  allergyDetails?: string;
+  irritatingIngredients?: string[];
 
-const skinConditionTypes = [
-  "NAO_TENHO_CONDICOES_ESPECIAIS",
-  "DERMATITE_ATORPICA_SEBORREICA_OU_DE_CONTATO",
-  "ROSACEA",
-  "ECZEMA",
-  "PSORIASE",
-  "HISTORICO_DE_HIPERSENSIBILIDADE_CUTANEA",
-  "MULTIPLAS_CONDICOES",
-] as const;
+  // 8. Teste de Tolerância
+  skinIrritationFrequency?: "often" | "sometimes" | "rarely" | "never";
+  triedRetinol?: boolean;
+  retinolReaction?: "good" | "irritation" | "severe" | "never_tried";
 
-const poreConditionTypes = [
-  "LIMPOS_E_POUCO_VISIVEIS",
-  "VISIVEIS_MAS_SEM_PONTOS_PRETOS",
-  "DILATADOS_PRINCIPALMENTE_NA_ZONA_T",
-  "COM_PRESENCA_DE_PONTOS_PRETOS_CRAVOS",
-  "DILATADOS_COM_MUITOS_PONTOS_PRETOS",
-] as const;
+  // 9. Preferências
+  preferredTexture?: string[];
+  prefersFragrance?: "yes" | "no" | "indifferent";
+  brandPreference?: "dermocosmetic" | "pharmaceutical" | "affordable";
 
-const smokingHabitTypes = [
-  "NAO_FUMO",
-  "EX_FUMANTE",
-  "FUMO_OCASIONALMENTE",
-  "FUMO_MODERADAMENTE",
-  "FUMO_FREQUENTEMENTE",
-] as const;
+  // 10. Contraindicações
+  hormonalTreatment?: boolean;
+  hormonalTreatmentType?: string;
+  usesAntibiotics?: boolean;
+  usesCorticoids?: boolean;
+};
 
-const waterIntakeTypes = [
-  "MENOS_DE_1L",
-  "DE_1_A_2L",
-  "DE_2_A_3L",
-  "MAIS_DE_3L",
-] as const;
+export type QuizQuestionOption = {
+  value: string;
+  label: string;
+};
 
-export const skinProfileSchema = z.object({
-  skinType: z.enum(skinTypes).optional(),
-  skincareRoutine: z.enum(skinRoutineTypes).optional(),
-  sunExposure: z.enum(sunExposureLevels).optional(),
-  knownAllergies: z.enum(knownAllergiesTypes).optional(),
-  pregnancyStatus: z.enum(pregnancyStatusTypes).optional(),
-  skinMedication: z.enum(skinMedicationTypes).optional(),
-  skinCondition: z.enum(skinConditionTypes).optional(),
-  poreCondition: z.enum(poreConditionTypes).optional(),
-  smokingHabit: z.enum(smokingHabitTypes).optional(),
-  waterIntake: z.enum(waterIntakeTypes).optional(),
-});
+export type QuizQuestion = {
+  id: keyof SkinProfileFormData;
+  label: string;
+  type: "boolean" | "select" | "multiselect" | "text" | "date" | "number";
+  options?: QuizQuestionOption[];
+  required?: boolean;
+  helpText?: string;
+  condition?: (data: SkinProfileFormData) => boolean;
+};
 
-export type SkinProfileFormData = z.infer<typeof skinProfileSchema>;
+export type QuizSection = {
+  id: string;
+  title: string;
+  description: string;
+  questions: QuizQuestion[];
+};
 
 export interface ProductRecommendation {
   id: string;
   name: string;
   category: "Limpeza" | "Hidratação" | "Tratamento" | "Proteção Solar";
   description: string;
-  purchaseUrl: string;
+  searchTerms: string[];
 }
+
+export interface PurchaseUrl {
+  storeName: string;
+  url: string;
+}
+
+export type ProductRecommendationWithUrls = ProductRecommendation & {
+  purchaseUrls: PurchaseUrl[];
+};
