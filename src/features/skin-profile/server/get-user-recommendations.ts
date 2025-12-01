@@ -24,19 +24,19 @@ export async function getUserRecommendations(): Promise<CatalogProduct[]> {
       return [];
     }
 
-    const recommendations = (await (db as any).productRecommendation.findMany({
+    const recommendations = await db.productRecommendation.findMany({
       where: {
         userId: session.user.id,
       },
       include: {
-        purchaseUrls: true,
+        PurchaseUrl: true,
       },
       orderBy: {
         createdAt: "desc",
       },
       // Pegar apenas as 20 recomendações mais recentes
       take: 20,
-    })) as any[];
+    });
 
     return recommendations.map((rec) => ({
       id: rec.id,
@@ -45,7 +45,7 @@ export async function getUserRecommendations(): Promise<CatalogProduct[]> {
       category: rec.category,
       description: rec.description,
       searchTerms: rec.searchTerms,
-      purchaseUrls: rec.purchaseUrls.map((url: any) => ({
+      purchaseUrls: rec.PurchaseUrl.map((url) => ({
         storeName: url.storeName,
         url: url.url,
       })),

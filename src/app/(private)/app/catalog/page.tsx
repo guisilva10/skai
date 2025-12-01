@@ -62,7 +62,7 @@ export default async function CatalogPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+    <div className="mx-auto h-[calc(100vh-250px)] max-w-6xl px-4 py-6 pb-20 sm:px-6">
       {/* Header */}
       <div className="mb-8 space-y-3">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -106,10 +106,10 @@ export default async function CatalogPage() {
                 {products.map((product) => (
                   <Card
                     key={product.id}
-                    className="overflow-hidden transition-shadow hover:shadow-lg"
+                    className="overflow-hidden pt-0 transition-shadow hover:shadow-lg"
                   >
                     <CardHeader
-                      className={`bg-gradient-to-r ${categoryColors[product.category as keyof typeof categoryColors] || "from-gray-500 to-gray-600"} text-white`}
+                      className={`bg-gradient-to-r py-4 ${categoryColors[product.category as keyof typeof categoryColors] || "from-gray-500 to-gray-600"} text-white`}
                     >
                       <div className="flex items-start gap-2">
                         <span className="text-2xl">

@@ -23,6 +23,8 @@ const ALLOWED_BRANDS = [
   "Medicube",
   "Tocobo",
   "Caudalie",
+  "La Roche-Posay",
+  "Cetaphil",
 ];
 
 const DISALLOWED_BRANDS = ["Cadiveu", "Nivea", "Darrow", "Payot"];
@@ -115,70 +117,147 @@ function generatePurchaseUrls(terms: string[]): PurchaseUrl[] {
 }
 
 function formatProfileForAI(data: SkinProfileFormData): string {
-  const translations: Record<string, string> = {
-    OLEOSA: "Oleosa (brilhante, poros dilatados)",
-    SECA: "Seca (tendência a descamação)",
-    MISTA: "Mista (Zona T oleosa, bochechas secas)",
-    SENSIVEL: "Sensível (reativa, propensa a irritações)",
-    NAO_COMEÇANDO_AGORA: "Não tem rotina, começando agora",
-    SIM_APENAS_LIMPEZA_E_HIDRATANTE:
-      "Rotina básica (apenas limpeza e hidratante)",
-    SIM_VARIOS_PRODUTOS: "Usa vários produtos",
-    SIM_ROTINA_COMPLETA_COM_ATIVOS: "Rotina completa com ativos",
-    BAIXO: "Baixa exposição ao sol (maioria do dia em casa)",
-    MODERADO: "Moderada exposição ao sol (sai ocasionalmente)",
-    ALTO: "Alta exposição ao sol (muito tempo ao ar livre)",
-    NAO_TENHO: "Nenhuma alergia conhecida",
-    FRAGRANCIAS: "Alergia a fragrâncias",
-    ACIDOS_E_ATIVOS_FORTES: "Sensibilidade a ácidos e ativos fortes",
-    MULTIPLAS_SENSIBILIDADES: "Múltiplas sensibilidades",
-    NAO: "Não está grávida ou amamentando",
-    GRAVIDA: "Está grávida",
-    AMAMENTANDO: "Está amamentando",
-    GRAVIDA_E_AMAMENTANDO: "Está grávida e amamentando",
-    NAO_TOMA: "Não toma medicação que influencia a pele",
-    ISOTRETINOINA: "Toma Isotretinoína (Roacutan)",
-    ESPIRONOLACTONA: "Toma Espironolactona",
-    OUTRAS_MEDICACOES_DERMATOLOGICAS: "Toma outras medicações dermatológicas",
-    MULTIPLAS_MEDICACOES: "Toma múltiplas medicações",
-    NAO_TENHO_CONDICOES_SPECIAIS: "Nenhuma doença de pele",
-    DERMATITE_ATORPICA_SEBORREICA_OU_DE_CONTATO:
-      "Dermatite (atópica, seborreica ou de contato)",
-    ROSACEA: "Rosácea",
-    ECZEMA: "Eczema",
-    PSORIASE: "Psoríase",
-    HISTORICO_DE_HIPERSENSIBILIDADE_CUTANEA:
-      "Histórico de hipersensibilidade cutânea",
-    MULTIPLAS_CONDICOES: "Múltiplas condições de pele",
-    LIMPOS_E_POUCO_VISIVEIS: "Poros limpos e pouco visíveis",
-    VISIVEIS_MAS_SEM_PONTOS_PRETOS: "Poros visíveis, mas sem pontos pretos",
-    DILATADOS_PRINCIPALMENTE_NA_ZONA_T:
-      "Poros dilatados, principalmente na Zona T",
-    COM_PRESENCA_DE_PONTOS_PRETOS_CRAVOS:
-      "Poros com presença de pontos pretos (cravos)",
-    DILATADOS_COM_MUITOS_PONTOS_PRETOS:
-      "Poros dilatados com muitos pontos pretos",
-    NAO_FUMO: "Não fuma",
-    EX_FUMANTE: "Ex-fumante",
-    FUMO_OCASIONALMENTE: "Fuma ocasionalmente (menos de 5/semana)",
-    FUMO_MODERADAMENTE: "Fuma moderadamente (5-10/dia)",
-    FUMO_FREQUENTEMENTE: "Fuma frequentemente (mais de 10/dia)",
-    MENOS_DE_1L: "Menos de 1 litro/dia",
-    DE_1_A_2L: "1 a 2 litros/dia",
-    DE_2_A_3L: "2 a 3 litros/dia",
-    MAIS_DE_3L: "Mais de 3 litros/dia",
-  };
+  const sections: string[] = [];
 
-  return Object.entries(data)
-    .filter(([, value]) => value != null)
-    .map(([key, value]) => {
-      const displayValue =
-        typeof value === "string" && value in translations
-          ? translations[value]
-          : String(value);
-      return `- ${key}: ${displayValue}`;
-    })
-    .join("\n");
+  // 1. Identificação do Tipo de Pele
+  const skinType: string[] = [];
+  if (data.feelsTightAfterWashing)
+    skinType.push("Sente a pele repuxar após lavar");
+  if (data.getsShinySkin) skinType.push("Pele fica brilhosa");
+  if (data.oilProductionArea)
+    skinType.push(`Produção de óleo: ${data.oilProductionArea}`);
+  if (data.hasDilatedPores) skinType.push("Tem poros dilatados");
+  if (data.dilatedPoresLocation)
+    skinType.push(`Localização dos poros: ${data.dilatedPoresLocation}`);
+  if (data.hasFlakingSkin) skinType.push("Pele descama");
+  if (data.getsRedEasily) skinType.push("Pele fica vermelha facilmente");
+  if (data.cosmeticsBurn) skinType.push("Cosméticos ardem na pele");
+  if (skinType.length > 0) {
+    sections.push(`**Tipo de Pele:**\n${skinType.join(", ")}`);
+  }
+
+  // 2. Histórico Dermatológico
+  const conditions: string[] = [];
+  if (data.hasAcne) conditions.push("Acne");
+  if (data.hasRosacea) conditions.push("Rosácea");
+  if (data.hasAtopicDermatitis) conditions.push("Dermatite Atópica");
+  if (data.hasSeborrheicDermatitis) conditions.push("Dermatite Seborreica");
+  if (data.hasMelasma) conditions.push("Melasma");
+  if (data.hasPsoriasis) conditions.push("Psoríase");
+  if (conditions.length > 0) {
+    sections.push(`**Condições de Pele:**\n${conditions.join(", ")}`);
+  }
+  if (data.currentTreatment) {
+    sections.push(`**Tratamento Atual:** ${data.currentTreatment}`);
+  }
+  if (data.currentMedication) {
+    sections.push(`**Medicação Atual:** ${data.currentMedication}`);
+  }
+  if (data.recentProcedures && data.procedureType) {
+    sections.push(
+      `**Procedimento Recente:** ${data.procedureType}${data.procedureDate ? ` em ${data.procedureDate}` : ""}`,
+    );
+  }
+
+  // 3. Rotina Atual
+  if (data.morningProducts && data.morningProducts.length > 0) {
+    sections.push(`**Produtos Matinais:** ${data.morningProducts.join(", ")}`);
+  }
+  if (data.nightProducts && data.nightProducts.length > 0) {
+    sections.push(`**Produtos Noturnos:** ${data.nightProducts.join(", ")}`);
+  }
+  if (data.routineSteps) {
+    sections.push(`**Passos na Rotina:** ${data.routineSteps}`);
+  }
+
+  // 4. Objetivos
+  if (data.mainGoal) {
+    sections.push(`**Objetivo Principal:** ${data.mainGoal}`);
+  }
+  if (data.secondaryGoals && data.secondaryGoals.length > 0) {
+    sections.push(
+      `**Objetivos Secundários:** ${data.secondaryGoals.join(", ")}`,
+    );
+  }
+
+  // 5. Hábitos e Estilo de Vida
+  const lifestyle: string[] = [];
+  if (data.sunExposure) lifestyle.push(`Exposição solar: ${data.sunExposure}`);
+  if (data.usesSunscreenDaily !== undefined) {
+    lifestyle.push(
+      `Usa protetor solar diariamente: ${data.usesSunscreenDaily ? "Sim" : "Não"}`,
+    );
+  }
+  if (data.usesMakeup) lifestyle.push(`Uso de maquiagem: ${data.usesMakeup}`);
+  if (data.cleansingFrequency)
+    lifestyle.push(`Frequência de limpeza: ${data.cleansingFrequency}`);
+  if (data.diet) lifestyle.push(`Dieta: ${data.diet}`);
+  if (lifestyle.length > 0) {
+    sections.push(`**Estilo de Vida:**\n${lifestyle.join("\n")}`);
+  }
+
+  // 6. Ambiente
+  const environment: string[] = [];
+  if (data.climate) environment.push(`Clima: ${data.climate}`);
+  if (data.sleepsWithAC) environment.push("Dorme com ar condicionado");
+  if (data.intensiveWorkout) environment.push("Faz exercícios intensos");
+  if (environment.length > 0) {
+    sections.push(`**Ambiente:** ${environment.join(", ")}`);
+  }
+
+  // 7. Sensibilidade e Alergias
+  if (data.hasAllergies && data.allergyDetails) {
+    sections.push(`**Alergias:** ${data.allergyDetails}`);
+  }
+  if (data.irritatingIngredients && data.irritatingIngredients.length > 0) {
+    sections.push(
+      `**Ingredientes Irritantes:** ${data.irritatingIngredients.join(", ")}`,
+    );
+  }
+
+  // 8. Teste de Tolerância
+  if (data.skinIrritationFrequency) {
+    sections.push(
+      `**Frequência de Irritação:** ${data.skinIrritationFrequency}`,
+    );
+  }
+  if (data.triedRetinol && data.retinolReaction) {
+    sections.push(`**Reação ao Retinol:** ${data.retinolReaction}`);
+  }
+
+  // 9. Preferências
+  const preferences: string[] = [];
+  if (data.preferredTexture && data.preferredTexture.length > 0) {
+    preferences.push(
+      `Texturas preferidas: ${data.preferredTexture.join(", ")}`,
+    );
+  }
+  if (data.prefersFragrance) {
+    preferences.push(`Preferência por fragrância: ${data.prefersFragrance}`);
+  }
+  if (data.brandPreference) {
+    preferences.push(`Preferência de marca: ${data.brandPreference}`);
+  }
+  if (preferences.length > 0) {
+    sections.push(`**Preferências:**\n${preferences.join("\n")}`);
+  }
+
+  // 10. Contraindicações
+  const contraindications: string[] = [];
+  if (data.hormonalTreatment && data.hormonalTreatmentType) {
+    contraindications.push(
+      `Tratamento hormonal: ${data.hormonalTreatmentType}`,
+    );
+  }
+  if (data.usesAntibiotics) contraindications.push("Usa antibióticos");
+  if (data.usesCorticoids) contraindications.push("Usa corticoides");
+  if (contraindications.length > 0) {
+    sections.push(
+      `**⚠️ CONTRAINDICAÇÕES IMPORTANTES:** ${contraindications.join(", ")}`,
+    );
+  }
+
+  return sections.join("\n\n");
 }
 
 export async function getRecommendationsForProfile(): Promise<
@@ -196,8 +275,7 @@ export async function getRecommendationsForProfile(): Promise<
       throw new Error("Chave da API OpenAI não configurada.");
     }
 
-    // Cast to any to avoid Prisma type errors
-    const userProfile = await (db as any).skinProfile.findUnique({
+    const userProfile = await db.skinProfile.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -210,59 +288,66 @@ export async function getRecommendationsForProfile(): Promise<
     const profileSummary = formatProfileForAI(
       userProfile as SkinProfileFormData,
     );
-    // ... (systemPrompt and userPrompt omitted for brevity, they are unchanged)
     const systemPrompt = `
       Você é uma dermatologista especialista em skincare.
       Sua tarefa é criar uma rotina de skincare de 4 passos (Limpeza, Hidratação, Tratamento, Proteção Solar) com base no perfil do usuário.
       
       **REGRAS CRÍTICAS DE PRODUTO:**
-      1. Recomende APENAS produtos REAIS que EXISTEM e são FACILMENTE ENCONTRADOS no mercado brasileiro.
-      2. O 'name' do produto DEVE ser EXATAMENTE como é vendido (marca + nome completo).
-      3. Use APENAS marcas permitidas: ${ALLOWED_BRANDS_LIST}.
-      4. NUNCA recomende: ${DISALLOWED_BRANDS.join(", ")}.
-      5. NUNCA invente nomes de produtos - use apenas produtos que você SABE que existem.
+      1. Recomende APENAS produtos que você TEM CERTEZA que existem e são vendidos no Brasil
+      2. O 'name' do produto DEVE estar em PORTUGUÊS e incluir o TIPO do produto + MARCA + NOME
+         Exemplos: "Gel de Limpeza Neutrogena Deep Clean", "Hidratante Neutrogena Hydro Boost", "Sérum The Ordinary Niacinamide"
+      3. Use APENAS marcas permitidas: ${ALLOWED_BRANDS_LIST}
+      4. NUNCA recomende: ${DISALLOWED_BRANDS.join(", ")}
+      5. Prefira produtos POPULARES e AMPLAMENTE DISPONÍVEIS
+      6. Se não tiver certeza sobre um produto, escolha outro da lista de exemplos
       
-      **EXEMPLOS DE PRODUTOS REAIS E CORRETOS (que funcionam bem nas buscas):**
+      **PRODUTOS VERIFICADOS E DISPONÍVEIS (use PREFERENCIALMENTE estes):**
       
-      LIMPEZA:
-      - "Bioderma Sensibio H2O" (água micelar)
-      - "Cosrx Low pH Good Morning Gel Cleanser"
-      - "Neutrogena Deep Clean"
-      - "Avene Cleanance Gel de Limpeza"
+      LIMPEZA (use prefixos: "Água Micelar", "Gel de Limpeza", "Sabonete Líquido", "Espuma de Limpeza"):
+      - "Água Micelar Bioderma Sensibio H2O" - disponível em todas as lojas
+      - "Gel de Limpeza Neutrogena Deep Clean" - muito popular
+      - "Gel de Limpeza Cosrx Low pH Good Morning" - suave
+      - "Gel de Limpeza La Roche-Posay Effaclar" - para pele oleosa
+      - "Sabonete Líquido Cetaphil Gentle Skin Cleanser" - suave
       
-      HIDRATAÇÃO:
-      - "Neutrogena Hydro Boost Water Gel"
-      - "Eucerin Urea Repair Plus"
-      - "Bioderma Atoderm Intensive Baume"
-      - "Laneige Water Sleeping Mask"
+      HIDRATAÇÃO (use prefixos: "Hidratante", "Gel Hidratante", "Creme Hidratante", "Bálsamo"):
+      - "Gel Hidratante Neutrogena Hydro Boost Water Gel" - muito popular
+      - "Creme Hidratante Eucerin Urea Repair Plus" - intenso
+      - "Bálsamo Hidratante Bioderma Atoderm Intensive Baume"
+      - "Hidratante La Roche-Posay Toleriane Ultra" - pele sensível
+      - "Creme Hidratante Cetaphil Moisturizing Cream"
       
-      TRATAMENTO:
-      - "The Ordinary Niacinamide 10% + Zinc 1%"
-      - "The Ordinary Hyaluronic Acid 2% + B5"
-      - "Cosrx Advanced Snail 96 Mucin Power Essence"
-      - "Beauty of Joseon Glow Serum"
-      - "Skin1004 Madagascar Centella Ampoule"
+      TRATAMENTO (use prefixos: "Sérum", "Essência", "Ampola", "Tratamento"):
+      - "Sérum The Ordinary Niacinamide 10% + Zinc 1%" - oleosidade e poros
+      - "Sérum The Ordinary Hyaluronic Acid 2% + B5" - hidratante
+      - "Essência Cosrx Advanced Snail 96 Mucin Power" - reparadora
+      - "Sérum Beauty of Joseon Glow Serum" - iluminador
+      - "Ampola Skin1004 Madagascar Centella" - calmante
+      - "Sérum The Ordinary Retinol 0.5% in Squalane" - anti-idade
       
-      PROTEÇÃO SOLAR:
-      - "Bioderma Photoderm Max FPS 50+"
-      - "Neutrogena Sun Fresh FPS 50"
-      - "Beauty of Joseon Relief Sun SPF 50+"
-      - "Anua Heartleaf Silky Moisture Sun Cream"
-      - "Eucerin Sun Oil Control FPS 50+"
+      PROTEÇÃO SOLAR (use prefixos: "Protetor Solar", "Filtro Solar"):
+      - "Protetor Solar Bioderma Photoderm Max SPF 50+"
+      - "Protetor Solar La Roche-Posay Anthelios XL SPF 50+"
+      - "Protetor Solar Neutrogena Sun Fresh FPS 50"
+      - "Protetor Solar Eucerin Sun Oil Control FPS 50+"
+      - "Protetor Solar Isdin Fusion Water FPS 50"
 
-      **IMPORTANTE:** Use EXATAMENTE esses nomes ou produtos similares que você SABE que existem.
-      NÃO crie variações ou invente produtos.
-      EVITE produtos que não são facilmente encontrados em lojas brasileiras.
-
+      **IMPORTANTE:** 
+      - SEMPRE inclua o tipo do produto em português no início do nome
+      - Use APENAS produtos desta lista ou produtos MUITO SIMILARES que você SABE que existem
+      - NÃO invente variações de nomes
+      - Se tiver dúvida, escolha outro produto da lista
+      - Priorize marcas como Bioderma, La Roche-Posay, Neutrogena, Eucerin, The Ordinary
+      
       Retorne APENAS um objeto JSON com uma única chave: "recommendations".
       A chave "recommendations" deve ser um array de 4 objetos.
       Cada objeto deve seguir esta interface:
       {
         id: string; // Use 'p1', 'p2', 'p3', 'p4'
-        name: string; // MARCA + NOME EXATO DO PRODUTO (ex: "Bioderma Sensibio H2O")
+        name: string; // TIPO + MARCA + NOME (ex: "Gel de Limpeza Neutrogena Deep Clean")
         category: "Limpeza" | "Hidratação" | "Tratamento" | "Proteção Solar";
         description: string; // Breve explicação (2-3 linhas) do porquê este produto é ideal.
-        searchTerms: string[]; // Array com 2 termos: ["marca nome-produto", "tipo"]. Ex: ["bioderma sensibio h2o", "agua micelar"]
+        searchTerms: string[]; // Array com 2 termos: ["tipo marca nome-produto", "categoria"]. Ex: ["gel de limpeza neutrogena deep clean", "limpeza facial"]
       }
       
       **REGRAS ESPECIAIS:**
@@ -311,7 +396,7 @@ export async function getRecommendationsForProfile(): Promise<
 
     // Salvar recomendações no banco de dados
     try {
-      await (db as any).productRecommendation.createMany({
+      await db.productRecommendation.createMany({
         data: recommendationsWithUrls.map((rec) => ({
           productId: rec.id,
           name: rec.name,
@@ -324,7 +409,7 @@ export async function getRecommendationsForProfile(): Promise<
 
       // Salvar URLs de compra
       for (const rec of recommendationsWithUrls) {
-        const savedRec = await (db as any).productRecommendation.findFirst({
+        const savedRec = await db.productRecommendation.findFirst({
           where: {
             productId: rec.id,
             userId: session.user.id,
@@ -335,7 +420,7 @@ export async function getRecommendationsForProfile(): Promise<
         });
 
         if (savedRec && rec.purchaseUrls.length > 0) {
-          await (db as any).purchaseUrl.createMany({
+          await db.purchaseUrl.createMany({
             data: rec.purchaseUrls.map((url) => ({
               storeName: url.storeName,
               url: url.url,
