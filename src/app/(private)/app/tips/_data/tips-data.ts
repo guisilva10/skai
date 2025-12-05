@@ -20,18 +20,18 @@ export const tipsData: Tip[] = [
     description:
       "A limpeza é o primeiro e mais importante passo da sua rotina. Aprenda a técnica correta para remover impurezas sem agredir a pele.",
     steps: [
-      "Molhe o rosto com água morna (nunca quente ou gelada)",
+      "Molhe o rosto com água fria (nunca quente ou gelada)",
       "Aplique uma pequena quantidade do gel (tamanho de uma moeda) nas mãos",
       "Faça espuma esfregando as mãos",
       "Massageie suavemente o rosto em movimentos circulares por 30-60 segundos",
       "Dê atenção especial à zona T (testa, nariz e queixo)",
-      "Enxágue completamente com água morna",
+      "Enxágue completamente com água fria",
       "Seque o rosto com uma toalha limpa, dando leves batidinhas (não esfregue)",
     ],
     frequency: "2 vezes ao dia (manhã e noite)",
     bestTime: "Ao acordar e antes de dormir",
     tips: [
-      "Use água morna, nunca quente - água muito quente remove a oleosidade natural da pele",
+      "Use água fria, nunca quente - água muito quente remove a oleosidade natural da pele",
       "Não esfregue com força - seja gentil para não irritar",
       "Certifique-se de enxaguar completamente - resíduos podem causar irritação",
       "Use uma toalha limpa sempre - toalhas úmidas acumulam bactérias",

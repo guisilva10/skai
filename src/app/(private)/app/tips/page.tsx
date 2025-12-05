@@ -181,7 +181,7 @@ export default function TipsPage() {
       : tipsData.filter((tip) => tip.category === selectedCategory);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 pb-32 sm:px-6">
       {/* Header */}
       <div className="mb-8 space-y-3">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">

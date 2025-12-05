@@ -46,7 +46,7 @@ export default async function CatalogPage() {
     }
   }
 
-  // Agrupar por data
+  // Agrupar por data primeiro
   const groupedByDate = recommendations.reduce(
     (acc, rec) => {
       const dateKey = format(new Date(rec.createdAt), "dd/MM/yyyy", {
@@ -61,15 +61,33 @@ export default async function CatalogPage() {
     {} as Record<string, typeof recommendations>,
   );
 
+  // Dentro de cada data, agrupar por categoria
+  const groupedByDateAndCategory = Object.entries(groupedByDate).map(
+    ([date, products]) => {
+      const byCategory = products.reduce(
+        (acc, product) => {
+          const category = product.category;
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push(product);
+          return acc;
+        },
+        {} as Record<string, typeof products>,
+      );
+      return { date, categories: byCategory };
+    },
+  );
+
   return (
-    <div className="mx-auto h-[calc(100vh-250px)] max-w-6xl px-4 py-6 pb-20 sm:px-6">
+    <div className="mx-auto h-[calc(100vh-250px)] max-w-6xl px-4 py-6 pb-32 sm:px-6">
       {/* Header */}
       <div className="mb-8 space-y-3">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Catálogo de Produtos
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Histórico de produtos recomendados especialmente para você
+          Produtos recomendados especialmente para você
         </p>
       </div>
 
@@ -91,77 +109,85 @@ export default async function CatalogPage() {
           </div>
         </Card>
       ) : (
-        <div className="space-y-8">
-          {Object.entries(groupedByDate).map(([date, products]) => (
+        <div className="space-y-12">
+          {groupedByDateAndCategory.map(({ date, categories }) => (
             <div key={date}>
               {/* Date Header */}
-              <div className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
+              <div className="text-muted-foreground mb-6 flex items-center gap-2 text-sm">
                 <IconCalendar size={16} />
                 <span className="font-medium">{date}</span>
                 <div className="bg-border h-px flex-1" />
               </div>
 
-              {/* Products Grid */}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((product) => (
-                  <Card
-                    key={product.id}
-                    className="overflow-hidden pt-0 transition-shadow hover:shadow-lg"
-                  >
-                    <CardHeader
-                      className={`bg-gradient-to-r py-4 ${categoryColors[product.category as keyof typeof categoryColors] || "from-gray-500 to-gray-600"} text-white`}
-                    >
-                      <div className="flex items-start gap-2">
+              {/* Categories */}
+              <div className="space-y-8">
+                {Object.entries(categories).map(([category, products]) => (
+                  <div key={category}>
+                    {/* Category Header */}
+                    <div className="mb-4 flex items-center gap-3">
+                      <div
+                        className={`flex items-center gap-2 rounded-lg bg-gradient-to-r ${categoryColors[category as keyof typeof categoryColors] || "from-gray-500 to-gray-600"} px-4 py-2 text-white shadow-md`}
+                      >
                         <span className="text-2xl">
                           {categoryIcons[
-                            product.category as keyof typeof categoryIcons
+                            category as keyof typeof categoryIcons
                           ] || "📦"}
                         </span>
-                        <div className="flex-1">
-                          <div className="mb-1 text-xs font-medium opacity-90">
-                            {product.category}
-                          </div>
-                          <CardTitle className="text-lg leading-tight">
-                            {product.name}
-                          </CardTitle>
-                        </div>
+                        <span className="font-semibold">{category}</span>
                       </div>
-                    </CardHeader>
+                      <div className="bg-border h-px flex-1" />
+                    </div>
 
-                    <CardContent className="space-y-4 pt-4">
-                      {/* Description */}
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {product.description}
-                      </p>
+                    {/* Products Grid */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {products.map((product) => (
+                        <Card
+                          key={product.id}
+                          className="overflow-hidden transition-shadow hover:shadow-lg"
+                        >
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base leading-tight">
+                              {product.name}
+                            </CardTitle>
+                          </CardHeader>
 
-                      {/* Purchase Links */}
-                      {product.purchaseUrls.length > 0 && (
-                        <div className="space-y-2">
-                          <div className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                            Onde Comprar
-                          </div>
-                          {product.purchaseUrls.map((url, idx) => (
-                            <Button
-                              key={idx}
-                              variant="outline"
-                              size="sm"
-                              className="w-full justify-between"
-                              asChild
-                            >
-                              <a
-                                href={url.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <span>{url.storeName}</span>
-                                <IconExternalLink size={16} />
-                              </a>
-                            </Button>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                          <CardContent className="space-y-3">
+                            {/* Description */}
+                            <p className="text-muted-foreground text-xs leading-relaxed">
+                              {product.description}
+                            </p>
+
+                            {/* Purchase Links */}
+                            {product.purchaseUrls.length > 0 && (
+                              <div className="space-y-2">
+                                <div className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+                                  Onde Comprar
+                                </div>
+                                {product.purchaseUrls.map((url, idx) => (
+                                  <Button
+                                    key={idx}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 w-full justify-between text-xs"
+                                    asChild
+                                  >
+                                    <a
+                                      href={url.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <span>{url.storeName}</span>
+                                      <IconExternalLink size={14} />
+                                    </a>
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

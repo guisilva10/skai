@@ -46,7 +46,7 @@ export function Dock({ user }: DockUserProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
-    <nav className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+    <nav className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2">
       <div className="bg-card/80 border-border mx-auto w-full rounded-2xl border px-6 py-3 shadow-lg backdrop-blur-lg">
         <div className="flex w-full max-w-4xl items-center gap-2">
           {navLinks.map((item) => {
