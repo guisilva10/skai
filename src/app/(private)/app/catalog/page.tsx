@@ -1,5 +1,25 @@
+import type { Metadata } from "next";
 import { getUserRecommendations } from "@/features/skin-profile/server/get-user-recommendations";
 import { getRecommendationsForProfile } from "@/features/skin-profile/server/get-recommendation";
+
+export const metadata: Metadata = {
+  title: "Catálogo de Produtos | SKAI",
+  description:
+    "Veja os produtos de skincare recomendados especialmente para você pela nossa IA. Encontre os melhores cosméticos para sua pele.",
+  keywords: [
+    "catálogo skincare",
+    "produtos recomendados",
+    "cosméticos",
+    "cuidados com a pele",
+    "recomendações IA",
+  ],
+  openGraph: {
+    title: "Catálogo de Produtos | SKAI",
+    description:
+      "Veja os produtos de skincare recomendados especialmente para você pela nossa IA.",
+    type: "website",
+  },
+};
 import {
   Card,
   CardContent,

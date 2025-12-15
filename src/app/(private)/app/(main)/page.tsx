@@ -1,4 +1,19 @@
+import type { Metadata } from "next";
 import GridCardsHome from "./_components/grid-cards-home";
+
+export const metadata: Metadata = {
+  title: "SKAI - Recomendações Personalizadas de Skincare",
+  description:
+    "Descubra seu regime de skincare ideal em minutos com recomendações personalizadas impulsionadas por IA",
+  keywords: [
+    "skincare",
+    "recomendações",
+    "IA",
+    "skai",
+    "beleza",
+    "limpeza de pele",
+  ],
+};
 
 export default async function Page() {
   return (
