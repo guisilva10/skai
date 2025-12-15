@@ -1,5 +1,5 @@
 import { auth } from "@/services/auth";
-import { db } from "@/services/database/prisma";
+import db from "@/services/database/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
