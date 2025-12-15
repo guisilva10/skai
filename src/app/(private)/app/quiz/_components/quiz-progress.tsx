@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, ChevronRight } from "lucide-react";
 
 interface QuizProgressProps {
   currentStep: number;

@@ -10,7 +10,7 @@ import { Button } from "@/app/_components/ui/button";
 import { IconExternalLink, IconCalendar } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { db } from "@/services/database/prisma";
+import db from "@/services/database/prisma";
 import { auth } from "@/services/auth";
 
 const categoryColors = {

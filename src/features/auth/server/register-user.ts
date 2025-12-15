@@ -1,9 +1,9 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { db } from "@/services/database/prisma";
+import db from "@/services/database/prisma";
 import { revalidatePath } from "next/cache";
-import { User } from "@prisma/client";
+import { User } from "@/generated/prisma/client";
 
 export type SafeUser = Omit<User, "password" | "emailVerified">;
 

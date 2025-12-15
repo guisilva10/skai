@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/services/auth";
-import { db } from "@/services/database/prisma";
+import db from "@/services/database/prisma";
 import { SkinProfileFormData } from "@/types";
 import OpenAI from "openai";
 

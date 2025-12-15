@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/_components/ui/select";
-import { QuizQuestion as QuizQuestionType, SkinProfileFormData } from "@/types";
+import { QuizQuestion as QuizQuestionType } from "@/types";
 import { cn } from "@/app/_lib/utils";
 
 interface QuizQuestionProps {

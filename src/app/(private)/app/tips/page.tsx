@@ -18,6 +18,8 @@ import {
   IconWash,
   IconAlertTriangle,
   IconBulb,
+  IconMoon,
+  IconSunHigh,
 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,6 +36,126 @@ const categoryColors = {
   hidratacao: "from-green-500 to-emerald-500",
   protecao: "from-orange-500 to-yellow-500",
 };
+
+// Dados da ordem de aplicação por período
+const morningRoutine = [
+  { step: 1, product: "Sabonete", description: "Limpeza suave" },
+  { step: 2, product: "Tônico", description: "Equilibra o pH" },
+  { step: 3, product: "Vitamina C", description: "Antioxidante" },
+  { step: 4, product: "Área dos olhos", description: "Creme específico" },
+  { step: 5, product: "Hidratante / Sérum", description: "Hidratação" },
+  { step: 6, product: "Protetor Solar", description: "Proteção UV" },
+];
+
+const nightRoutine = [
+  {
+    step: 1,
+    product: "Água micelar / Demaquilante / Cleansing oil ou balm",
+    description: "Remove maquiagem e sujeira",
+  },
+  { step: 2, product: "Sabonete", description: "Segunda limpeza" },
+  { step: 3, product: "Tônico", description: "Equilibra o pH" },
+  { step: 4, product: "Área dos olhos", description: "Creme específico" },
+  { step: 5, product: "Hidratante", description: "Nutrição noturna" },
+  {
+    step: 6,
+    product: "Tratamento noturno (Sérum, Ácidos)",
+    description: "Renovação celular",
+  },
+];
+
+function RoutineOrderCard() {
+  return (
+    <Card className="border-primary/30 from-primary/5 to-secondary/5 mb-8 overflow-hidden border-2 border-dashed bg-gradient-to-br">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-2xl">
+          <span className="text-3xl">📋</span>
+          Ordem de Aplicação dos Produtos
+        </CardTitle>
+        <p className="text-muted-foreground text-sm">
+          Siga esta ordem para garantir a máxima absorção e eficácia de cada
+          produto
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Rotina da Manhã */}
+          <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 p-5 dark:from-amber-950/30 dark:to-orange-950/30">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="rounded-full bg-amber-500/20 p-2">
+                <IconSunHigh className="size-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-bold text-amber-700 dark:text-amber-300">
+                Manhã
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {morningRoutine.map((item) => (
+                <div
+                  key={item.step}
+                  className="flex items-start gap-3 rounded-lg bg-white/60 p-3 transition-all hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/20"
+                >
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-sm font-bold text-white">
+                    {item.step}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-900 dark:text-amber-100">
+                      {item.product}
+                    </p>
+                    <p className="text-xs text-amber-700/70 dark:text-amber-300/70">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Rotina da Noite */}
+          <div className="rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 p-5 dark:from-indigo-950/30 dark:to-purple-950/30">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="rounded-full bg-indigo-500/20 p-2">
+                <IconMoon className="size-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <h3 className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
+                Noite
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {nightRoutine.map((item) => (
+                <div
+                  key={item.step}
+                  className="flex items-start gap-3 rounded-lg bg-white/60 p-3 transition-all hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/20"
+                >
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-sm font-bold text-white">
+                    {item.step}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-indigo-900 dark:text-indigo-100">
+                      {item.product}
+                    </p>
+                    <p className="text-xs text-indigo-700/70 dark:text-indigo-300/70">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-900 dark:bg-amber-950/20">
+          <IconBulb className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <p className="text-xs text-amber-800 dark:text-amber-200">
+            <strong>Dica importante:</strong> Sempre aplique os produtos do mais
+            leve (aquoso) para o mais denso (cremoso). Aguarde 1-2 minutos entre
+            cada produto para garantir a absorção completa.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function TipCard({ tip }: { tip: Tip }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -192,6 +314,9 @@ export default function TipsPage() {
           resultados da sua rotina de skincare
         </p>
       </div>
+
+      {/* Ordem de Aplicação */}
+      <RoutineOrderCard />
 
       {/* Category Filter */}
       <div className="mb-6 flex flex-wrap gap-2">
