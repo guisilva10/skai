@@ -8,20 +8,69 @@ import { QuizProgress } from "./quiz-progress";
 import { QuizSectionCard } from "./quiz-section-card";
 import { QuizNavigation } from "./quiz-navigation";
 import { createSkincareProfile } from "@/features/skin-profile/server/create-skincare-profile";
+import { getRecommendationsForProfile } from "@/features/skin-profile/server/get-recommendation";
 import { toast } from "sonner";
-import { IconPencil, IconSparkles } from "@tabler/icons-react";
+import {
+  IconPencil,
+  IconSparkles,
+  IconPackage,
+  IconLoader2,
+} from "@tabler/icons-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/app/_components/ui/alert-dialog";
 
 interface QuizWizardProps {
   initialData?: SkinProfileFormData | null;
+  hasExistingRecommendations?: boolean;
 }
 
-export function QuizWizard({ initialData }: QuizWizardProps) {
+// Loading Overlay Component
+function LoadingOverlay({ message }: { message: string }) {
+  return (
+    <div className="bg-background/80 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div className="bg-card flex flex-col items-center gap-6 rounded-2xl border p-8 shadow-2xl">
+        <div className="relative">
+          <div className="bg-primary/20 absolute inset-0 animate-ping rounded-full" />
+          <div className="bg-primary/10 relative rounded-full p-6">
+            <IconLoader2 className="text-primary h-12 w-12 animate-spin" />
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-xl font-semibold">{message}</h3>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Isso pode levar alguns segundos...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function QuizWizard({
+  initialData,
+  hasExistingRecommendations = false,
+}: QuizWizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<SkinProfileFormData>(
     initialData || {},
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [showExistingDialog, setShowExistingDialog] = useState(
+    initialData !== null &&
+      initialData !== undefined &&
+      hasExistingRecommendations,
+  );
+  const [isEditing, setIsEditing] = useState(false);
 
   const isEditMode = initialData !== null && initialData !== undefined;
 
@@ -51,32 +100,86 @@ export function QuizWizard({ initialData }: QuizWizardProps) {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+      setLoadingMessage("Salvando seu perfil...");
 
       // Save profile to database
       await createSkincareProfile(formData);
 
-      toast(
+      // Generate recommendations immediately
+      setLoadingMessage("Consultando produtos...");
+      await getRecommendationsForProfile();
+
+      toast.success(
         isEditMode
           ? "Perfil atualizado com sucesso!"
           : "Perfil salvo com sucesso!",
         {
-          description: "Gerando suas recomendações personalizadas...",
+          description: "Suas recomendações estão prontas!",
         },
       );
 
       // Redirect to catalog to see recommendations
-      // The catalog page will trigger recommendation generation if needed
       router.push("/app/catalog");
       router.refresh();
     } catch (error) {
       console.error(error);
-      toast("Erro ao salvar perfil", {
+      setIsSubmitting(false);
+      setLoadingMessage("");
+      toast.error("Erro ao salvar perfil", {
         description: "Tente novamente mais tarde.",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const handleViewProducts = () => {
+    router.push("/app/catalog");
+  };
+
+  const handleEditQuiz = () => {
+    setShowExistingDialog(false);
+    setIsEditing(true);
+  };
+
+  // Loading overlay
+  if (isSubmitting) {
+    return <LoadingOverlay message={loadingMessage} />;
+  }
+
+  // Se tem perfil existente com recomendações e usuário ainda não decidiu editar
+  if (showExistingDialog) {
+    return (
+      <AlertDialog
+        open={showExistingDialog}
+        onOpenChange={setShowExistingDialog}
+      >
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <IconPackage className="text-primary h-8 w-8" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              Você já tem produtos recomendados!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Você já respondeu o quiz e possui recomendações personalizadas.
+              Deseja ver seus produtos ou editar suas respostas para receber
+              novas sugestões?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction onClick={handleViewProducts} className="w-full">
+              <IconPackage className="mr-2 h-4 w-4" />
+              Ver Meus Produtos
+            </AlertDialogAction>
+            <AlertDialogCancel onClick={handleEditQuiz} className="w-full">
+              <IconPencil className="mr-2 h-4 w-4" />
+              Editar Quiz
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
 
   return (
     <div className="mx-auto h-[calc(100vh-250px)] max-w-2xl space-y-8 px-4 py-8">
@@ -86,7 +189,7 @@ export function QuizWizard({ initialData }: QuizWizardProps) {
         </h1>
 
         {/* Edit Mode Indicator */}
-        {isEditMode && (
+        {(isEditMode || isEditing) && (
           <div className="mx-auto flex max-w-md items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 dark:border-amber-800 dark:bg-amber-950/30">
             <IconPencil className="size-4 text-amber-600 dark:text-amber-400" />
             <span className="text-sm text-amber-700 dark:text-amber-300">
@@ -96,7 +199,7 @@ export function QuizWizard({ initialData }: QuizWizardProps) {
           </div>
         )}
 
-        {!isEditMode && (
+        {!isEditMode && !isEditing && (
           <div className="border-primary/20 bg-primary/5 mx-auto flex max-w-md items-center justify-center gap-2 rounded-lg border px-4 py-2">
             <IconSparkles className="text-primary size-4" />
             <span className="text-primary text-sm">
@@ -120,7 +223,7 @@ export function QuizWizard({ initialData }: QuizWizardProps) {
         onNext={handleNext}
         onPrevious={handlePrevious}
         isSubmitting={isSubmitting}
-        isEditMode={isEditMode}
+        isEditMode={isEditMode || isEditing}
       />
     </div>
   );

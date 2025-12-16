@@ -23,15 +23,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Buscar perfil do usuário para personalizar respostas
     const userProfile = await db.skinProfile.findUnique({
       where: { userId: session.user.id },
     });
 
-    // Criar contexto personalizado baseado no perfil
     let profileContext = "";
     if (userProfile) {
-      // Cast para any para evitar erros de tipo com cliente desatualizado
       const p = userProfile as any;
 
       profileContext = `

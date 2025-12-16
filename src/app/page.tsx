@@ -33,20 +33,18 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <SmoothScroll>
-      <main className="relative min-h-screen w-full overflow-hidden lg:max-w-screen">
-        <AuroraBackground>
-          <HeroSection />
-        </AuroraBackground>
-        <MarqueeCross />
-        <StepByStepSection />
-        <SkincareRoutine />
-        <WhySkaiSection />
-        <TestimonialsSection />
-        <FAQSection />
-        <CTASection />
-        <Footer />
-      </main>
-    </SmoothScroll>
+    <main className="relative min-h-screen w-full overflow-hidden lg:max-w-screen">
+      <AuroraBackground>
+        <HeroSection />
+      </AuroraBackground>
+      <MarqueeCross />
+      <StepByStepSection />
+      <SkincareRoutine />
+      <WhySkaiSection />
+      <TestimonialsSection />
+      <FAQSection />
+      <CTASection />
+      <Footer />
+    </main>
   );
 }
