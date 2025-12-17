@@ -131,7 +131,7 @@ export async function getRecommendationsForProfile(): Promise<
 
     console.log("[AI_RECOMMENDATION] Enviando para Gemini...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.0" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `${RECOMMENDATION_PROMPT}
 
