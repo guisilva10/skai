@@ -7,6 +7,39 @@ import { getProductsForAI, getProductById } from "@/lib/product-catalog";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
+// Função de retry com backoff exponencial
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 1000,
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      const isRetryable =
+        error?.message?.includes("503") ||
+        error?.message?.includes("Service Unavailable") ||
+        error?.message?.includes("overloaded");
+
+      if (!isRetryable || attempt === maxRetries - 1) {
+        throw error;
+      }
+
+      const delay = initialDelay * Math.pow(2, attempt);
+      console.log(
+        `[AI_RECOMMENDATION] Tentativa ${attempt + 1} falhou. Aguardando ${delay}ms antes de tentar novamente...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
 export type ProductRecommendation = {
   id: string;
   name: string;
@@ -140,7 +173,11 @@ ${profileText}
 CATÁLOGO DE PRODUTOS DISPONÍVEIS:
 ${JSON.stringify(catalog, null, 2)}`;
 
-    const result = await model.generateContent(prompt);
+    const result = await retryWithBackoff(
+      () => model.generateContent(prompt),
+      3, // máximo de 3 tentativas
+      2000, // começar com 2 segundos de delay
+    );
     const response = await result.response;
     const aiContent = response.text();
 
