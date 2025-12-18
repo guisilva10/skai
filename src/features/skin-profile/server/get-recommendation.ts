@@ -106,47 +106,65 @@ type AIResponse = {
 const RECOMMENDATION_PROMPT = `Você é uma dermatologista especialista em skincare. 
 Analise o perfil de pele do usuário e selecione os melhores produtos do catálogo fornecido.
 
-ATENÇÃO: Cada categoria deve conter APENAS produtos específicos daquela categoria. NÃO misture tipos de produtos.
+⚠️ ATENÇÃO CRÍTICA: Cada categoria deve conter APENAS produtos específicos daquela categoria. NÃO misture tipos de produtos.
 
-CATEGORIAS DE PRODUTOS (SIGA RIGOROSAMENTE):
+🚫 REGRA FUNDAMENTAL - PRODUTOS FACIAIS vs CORPORAIS:
+- NUNCA recomende produtos CORPORAIS (corpo, body, douche, banho, shower)
+- Verifique CUIDADOSAMENTE o nome e descrição do produto
+- Se o produto contém "corpo", "corporal", "body", "douche", "banho" ou "shower" no nome → NÃO RECOMENDE
+- APENAS produtos explicitamente FACIAIS ou que não mencionem uso corporal
+- Exemplos de produtos PROIBIDOS: "Gel Douche", "Sabonete Corporal", "Body Lotion", "Hidratante Corpo"
+
+📋 CATEGORIAS DE PRODUTOS (SIGA RIGOROSAMENTE):
 
 1. sabonetesFaciais: 
-   - APENAS géis de limpeza facial SEM função demaquilante, espumas de limpeza, sabonetes faciais líquidos
-   - NUNCA incluir produtos com "micelar" ou "micellar" no nome - esses são demaquilantes
-   - NÃO incluir águas micelares, cleansing balm, cleansing oil ou qualquer produto demaquilante
-   - Produtos de "segunda limpeza" (após demaquilante) devem vir aqui
+   - ✅ APENAS: Géis de limpeza FACIAL, espumas de limpeza FACIAL, sabonetes líquidos FACIAIS
+   - ❌ NUNCA: Produtos com "micelar"/"micellar" (são demaquilantes)
+   - ❌ NUNCA: Águas micelares, cleansing balm, cleansing oil
+   - ❌ NUNCA: Produtos com "corpo", "corporal", "body", "douche", "banho"
+   - ✅ Produtos de "segunda limpeza" (após demaquilante) devem vir aqui
+   - ✅ Exemplos válidos: "Gel de Limpeza Facial", "Sabonete Líquido Facial", "Espuma de Limpeza"
 
 2. hidratantesFaciais: 
-   - APENAS cremes hidratantes faciais, gel-cremes, loções hidratantes faciais
-   - NÃO incluir séruns ou tratamentos aqui
+   - ✅ APENAS: Cremes hidratantes FACIAIS, gel-cremes FACIAIS, loções hidratantes FACIAIS
+   - ❌ NUNCA: Séruns, tratamentos, produtos corporais
+   - ❌ NUNCA: Produtos com "corpo", "corporal", "body"
+   - ✅ Exemplos válidos: "Creme Hidratante Facial", "Gel-Creme Facial"
 
 3. vitaminaC: 
-   - APENAS séruns e produtos com Vitamina C como ingrediente principal
-   - NÃO incluir outros tipos de séruns aqui
+   - ✅ APENAS: Séruns e produtos com Vitamina C como ingrediente principal
+   - ❌ NUNCA: Outros tipos de séruns, hidratantes com vitamina C
+   - ✅ Exemplos válidos: "Sérum Vitamina C", "Antioxidante Vitamina C"
 
 4. demaquilantes: 
-   - APENAS águas micelares, cleansing balm, cleansing oil, removedores de maquiagem
-   - NÃO incluir sabonetes faciais aqui
+   - ✅ APENAS: Águas micelares, cleansing balm, cleansing oil, removedores de maquiagem
+   - ❌ NUNCA: Sabonetes faciais, géis de limpeza
+   - ✅ Exemplos válidos: "Água Micelar", "Cleansing Balm", "Óleo Demaquilante"
 
 5. protetoresSolares: 
-   - APENAS protetores solares faciais (FPS 30+)
-   - NÃO incluir hidratantes com FPS aqui
+   - ✅ APENAS: Protetores solares FACIAIS (FPS 30+)
+   - ❌ NUNCA: Hidratantes com FPS, protetores corporais
+   - ❌ NUNCA: Produtos com "corpo", "corporal", "body"
+   - ✅ Exemplos válidos: "Protetor Solar Facial FPS 50", "Filtro Solar Facial"
 
 6. tratamentos: 
-   - APENAS séruns (exceto vitamina C), ácidos (AHA, BHA, retinol), tratamentos anti-idade, clareadores
-   - NÃO incluir hidratantes ou vitamina C aqui
+   - ✅ APENAS: Séruns (exceto vitamina C), ácidos (AHA, BHA, retinol), tratamentos anti-idade, clareadores
+   - ❌ NUNCA: Hidratantes, vitamina C, produtos corporais
+   - ✅ Exemplos válidos: "Sérum Ácido Hialurônico", "Tratamento Anti-Idade", "Sérum Niacinamida"
 
-REGRAS IMPORTANTES:
-1. Selecione EXATAMENTE 10 produtos de cada categoria (total de 60 produtos)
+🔒 REGRAS OBRIGATÓRIAS:
+1. Selecione 15 produtos de cada categoria (para permitir filtragem posterior)
 2. ORDENE os produtos do MAIS BARATO para o MAIS CARO (pelo campo "price")
 3. DISTRIBUIÇÃO: Mescle produtos entre as lojas "amobeleza" e "labko" (aproximadamente 50/50)
 4. Considere o perfil de pele do usuário para fazer recomendações personalizadas
 5. Para cada produto, forneça uma breve razão (máximo 80 caracteres) do porquê ele é ideal
 6. Use APENAS os IDs de produtos que estão no catálogo fornecido
 7. NÃO repita o mesmo produto em categorias diferentes
-8. NÃO repita produtos com mesmo nome mas tamanhos diferentes (ex: "Produto 100ml" e "Produto 200ml" - escolha apenas UM)
-9. IGNORE produtos corporais, foque apenas em produtos FACIAIS
-10. Leia atentamente o nome e descrição do produto antes de categorizá-lo
+8. Tente variar as MARCAS. Evite selecionar muitos produtos da mesma marca na mesma categoria.
+9. 🚫 IGNORE COMPLETAMENTE produtos CORPORAIS - foque APENAS em produtos FACIAIS
+10. Leia CUIDADOSAMENTE o nome E descrição do produto antes de categorizá-lo
+11. Se tiver dúvida se um produto é facial ou corporal, NÃO o recomende
+12. Produtos com "Gel Douche", "Sabonete Corpo", "Body" no nome são PROIBIDOS
 
 Retorne APENAS um JSON válido no seguinte formato (sem markdown, sem explicações, apenas o JSON puro):
 {
@@ -247,34 +265,94 @@ PREFERÊNCIAS:
 `;
 }
 
-// Função para remover duplicatas de recomendações (produtos com mesmo nome mas tamanhos diferentes)
+// Função para remover duplicatas e limitar produtos por marca
 function removeDuplicateRecommendations(
   recommendations: ProductRecommendationWithUrls[],
 ): ProductRecommendationWithUrls[] {
   const seen = new Map<string, ProductRecommendationWithUrls>();
+  const brandCounts = new Map<string, number>();
 
   for (const rec of recommendations) {
-    // Normaliza o nome removendo tamanhos
+    // Extrai a marca do produto (primeira palavra geralmente)
+    const brand = rec.searchTerms?.[0]?.toLowerCase() || "unknown";
+    const brandKey = `${rec.category}-${brand}`;
+
+    // 🚫 REGRA DE VARIEDADE: Limite de 1 produto por marca por categoria
+    // Se já temos um produto desta marca nesta categoria, ignoramos (a menos que seja o mesmo produto sendo atualizado por preço)
+    if ((brandCounts.get(brandKey) || 0) >= 1) {
+      // Verifica se é o MESMO produto (pela chave de nome) para permitir atualização de preço
+      // Se for produto diferente da mesma marca, pula
+      // Mas como a chave de nome não tem marca, precisamos ter cuidado.
+      // Vamos simplificar: Se a IA mandou ordenado por preço, o primeiro que aparece é o melhor/mais barato.
+      // Se já existe um produto dessa marca na categoria, e este não é mais barato que o que já temos, ignoramos.
+      // Se for mais barato, substituímos.
+      const existingRec = seen.get(`${rec.category}-${rec.name.toLowerCase()}`); // Check for exact name match first
+      if (
+        existingRec &&
+        rec.price &&
+        existingRec.price &&
+        rec.price < existingRec.price
+      ) {
+        console.log(
+          `[DEDUP] Substituindo "${existingRec.name}" (R$ ${existingRec.price}) por "${rec.name}" (R$ ${rec.price}) - mais barato`,
+        );
+        seen.set(`${rec.category}-${rec.name.toLowerCase()}`, rec);
+      } else if (!existingRec) {
+        // If it's a new product name for this brand in this category
+        console.log(
+          `[DEDUP] Ignorando produto extra da marca "${brand}" na categoria "${rec.category}": "${rec.name}"`,
+        );
+      }
+      continue;
+    }
+
+    // Normaliza o nome de forma EXTREMAMENTE agressiva
     const normalizedName = rec.name
       .toLowerCase()
+      // Remove tamanhos e unidades (ml, g, kg, etc)
       .replace(
-        /\d+\s*(ml|g|mg|kg|l|litro|litros|gramas?|miligramas?|quilogramas?)/gi,
+        /\d+\s*(ml|g|mg|kg|l|litro|litros|gramas?|miligramas?|quilogramas?|oz|fl\.?\s*oz)/gi,
         "",
       )
       .replace(/\d+\s*unidades?/gi, "")
-      .replace(/kit\s+/gi, "")
-      .replace(/refil/gi, "")
+      // Remove TODOS os números (incluindo FPS, etc)
+      .replace(/\d+/g, "")
+      // Remove palavras comuns que não afetam a identidade do produto
+      .replace(/\b(kit|refil|pack|duo|trio|combo|set|fps|uv|uva|uvb)\b/gi, "")
+      // Remove caracteres especiais e pontuação
+      .replace(/[+\-*\/()[\]{}.,;:!?'"–-]/g, " ")
+      // Remove palavras muito curtas (artigos, preposições)
+      .replace(/\b(de|da|do|e|a|o|com|para|em|no|na)\b/gi, " ")
+      // Normaliza espaços múltiplos
       .replace(/\s+/g, " ")
       .trim();
 
-    const key = `${rec.category}-${normalizedName}`;
+    // ORDENA as palavras para garantir que "Gel Bioderma" e "Bioderma Gel" sejam iguais
+    const sortedWords = normalizedName.split(" ").sort().join(" ");
+
+    // Cria uma chave única baseada APENAS na categoria e nome normalizado ordenado
+    const key = `${rec.category}-${sortedWords}`;
+
+    console.log(
+      `[DEDUP] Original: "${rec.name}" -> Normalized & Sorted: "${sortedWords}" -> Key: "${key}"`,
+    );
 
     // Se ainda não vimos este produto, ou se o atual é mais barato, mantemos ele
     if (
       !seen.has(key) ||
       (rec.price && seen.get(key)!.price && rec.price < seen.get(key)!.price!)
     ) {
+      if (seen.has(key)) {
+        console.log(
+          `[DEDUP] Substituindo "${seen.get(key)!.name}" (R$ ${seen.get(key)!.price}) por "${rec.name}" (R$ ${rec.price}) - mais barato`,
+        );
+      }
       seen.set(key, rec);
+      brandCounts.set(brandKey, (brandCounts.get(brandKey) || 0) + 1);
+    } else {
+      console.log(
+        `[DEDUP] Ignorando duplicata: "${rec.name}" (já temos "${seen.get(key)!.name}")`,
+      );
     }
   }
 
@@ -314,13 +392,14 @@ export async function getRecommendationsForProfile(
     }
 
     console.log("[AI_RECOMMENDATION] Carregando catálogo de produtos...");
-    const catalog = await getProductsForAI(25);
+    // AUMENTADO PARA 60 para dar mais opções de marcas
+    const catalog = await getProductsForAI(60);
 
     const profileText = formatProfileForAI(userProfile);
 
     console.log("[AI_RECOMMENDATION] Enviando para Gemini...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `${RECOMMENDATION_PROMPT}
 
@@ -373,7 +452,12 @@ ${JSON.stringify(catalog, null, 2)}`;
       for (const rec of categoryRecs) {
         const product = await getProductById(rec.productId);
 
-        if (product) {
+        // ✅ Validação: só adiciona se o produto existir E tiver URL válida
+        if (
+          product &&
+          product.product_url &&
+          product.product_url.trim() !== ""
+        ) {
           recommendationsWithUrls.push({
             id: product.id,
             name: product.name,
@@ -389,6 +473,10 @@ ${JSON.stringify(catalog, null, 2)}`;
               },
             ],
           });
+        } else {
+          console.log(
+            `[AI_RECOMMENDATION] Produto ignorado (sem URL válida): ${product?.name || rec.productId}`,
+          );
         }
       }
     }
@@ -413,8 +501,26 @@ ${JSON.stringify(catalog, null, 2)}`;
       });
 
       // Salva todas as recomendações de uma vez (SEM duplicatas)
+      // LIMITA A 10 PRODUTOS POR CATEGORIA AQUI, se necessário, ou salva tudo
+      // O prompt pede 15, então podemos ter mais que 10. Vamos salvar todos os filtrados.
+      // Ou melhor, vamos garantir que não salvamos demais para não poluir a UI.
+      // Vamos agrupar por categoria e pegar os top 10.
+
+      const finalRecommendations: ProductRecommendationWithUrls[] = [];
+      const recsByCategory = new Map<string, ProductRecommendationWithUrls[]>();
+
+      for (const rec of deduplicatedRecommendations) {
+        if (!recsByCategory.has(rec.category)) {
+          recsByCategory.set(rec.category, []);
+        }
+        if (recsByCategory.get(rec.category)!.length < 10) {
+          recsByCategory.get(rec.category)!.push(rec);
+          finalRecommendations.push(rec);
+        }
+      }
+
       await db.productRecommendation.createMany({
-        data: deduplicatedRecommendations.map((rec) => ({
+        data: finalRecommendations.map((rec) => ({
           productId: rec.id,
           name: rec.name,
           category: rec.category,
@@ -434,7 +540,7 @@ ${JSON.stringify(catalog, null, 2)}`;
       const recMap = new Map(savedRecs.map((r) => [r.productId, r.id]));
 
       // Prepara todas as URLs para inserção em batch
-      const allUrls = deduplicatedRecommendations.flatMap((rec) => {
+      const allUrls = finalRecommendations.flatMap((rec) => {
         const savedRecId = recMap.get(rec.id);
         if (!savedRecId || rec.purchaseUrls.length === 0) return [];
 
@@ -453,12 +559,13 @@ ${JSON.stringify(catalog, null, 2)}`;
       }
 
       console.log("[AI_RECOMMENDATION] Recomendações salvas com sucesso!");
+
+      // Return recommendations instead of redirecting
+      return finalRecommendations;
     } catch (dbError) {
       console.error("[SAVE_RECOMMENDATIONS_ERROR]", dbError);
+      throw dbError; // Propaga erro para ser tratado
     }
-
-    // Return recommendations instead of redirecting
-    return deduplicatedRecommendations;
   } catch (error) {
     console.error("[GET_RECOMMENDATIONS_ERROR]", error);
     throw error;
