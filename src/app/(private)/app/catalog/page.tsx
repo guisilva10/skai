@@ -36,9 +36,6 @@ export default async function CatalogPage() {
     hasProfile = !!profile;
   }
 
-  // Se tem perfil mas não tem recomendações, precisa gerar
-  const needsGeneration = hasProfile && recommendations.length === 0;
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 pb-32 sm:px-6">
       {/* Header */}
@@ -51,11 +48,10 @@ export default async function CatalogPage() {
         </p>
       </div>
 
-      {/* Content with Loading State */}
+      {/* Content - Apenas mostra recomendações salvas */}
       <CatalogWrapper
         initialRecommendations={recommendations}
         hasProfile={hasProfile}
-        needsGeneration={needsGeneration}
       />
     </div>
   );

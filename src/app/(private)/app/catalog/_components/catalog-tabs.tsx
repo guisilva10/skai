@@ -39,25 +39,40 @@ type CatalogTabsProps = {
 };
 
 const categoryConfig = {
-  Limpeza: {
+  "Sabonetes Faciais": {
     icon: "🧼",
     color: "from-blue-500 to-cyan-500",
   },
-  Hidratação: {
+  "Hidratantes Faciais": {
     icon: "💧",
     color: "from-green-500 to-emerald-500",
   },
-  Tratamento: {
+  "Vitamina C": {
+    icon: "🍊",
+    color: "from-amber-500 to-orange-500",
+  },
+  Demaquilantes: {
+    icon: "🧴",
+    color: "from-pink-500 to-rose-500",
+  },
+  "Protetores Solares": {
+    icon: "☀️",
+    color: "from-yellow-500 to-orange-500",
+  },
+  Tratamentos: {
     icon: "✨",
     color: "from-purple-500 to-pink-500",
   },
-  "Proteção Solar": {
-    icon: "☀️",
-    color: "from-orange-500 to-yellow-500",
-  },
 };
 
-const categoryOrder = ["Limpeza", "Hidratação", "Tratamento", "Proteção Solar"];
+const categoryOrder = [
+  "Sabonetes Faciais",
+  "Hidratantes Faciais",
+  "Vitamina C",
+  "Demaquilantes",
+  "Protetores Solares",
+  "Tratamentos",
+];
 
 // Loading Component
 function LoadingState() {
@@ -108,10 +123,18 @@ export function CatalogTabs({ recommendations, isLoading }: CatalogTabsProps) {
     {} as Record<string, CatalogProduct[]>,
   );
 
+  console.log(
+    "[CATALOG_TABS] Categorias encontradas:",
+    Object.keys(productsByCategory),
+  );
+  console.log("[CATALOG_TABS] Total de produtos:", recommendations.length);
+
   // Ordenar categorias
   const sortedCategories = categoryOrder.filter(
     (cat) => productsByCategory[cat]?.length > 0,
   );
+
+  console.log("[CATALOG_TABS] Categorias ordenadas:", sortedCategories);
 
   if (sortedCategories.length === 0) {
     return (

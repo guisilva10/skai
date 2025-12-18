@@ -38,9 +38,11 @@ export async function getUserRecommendations(): Promise<CatalogProduct[]> {
       orderBy: {
         createdAt: "desc",
       },
-      // Pegar apenas as 20 recomendações mais recentes
-      take: 20,
     });
+
+    console.log(
+      `[GET_USER_RECOMMENDATIONS] Encontradas ${recommendations.length} recomendações para o usuário ${session.user.id}`,
+    );
 
     // Buscar dados adicionais dos produtos do catálogo
     const enrichedRecommendations = await Promise.all(

@@ -4,7 +4,6 @@ import { auth } from "@/services/auth";
 import db from "@/services/database/prisma";
 import { SkinProfileFormData } from "@/types";
 import { revalidatePath } from "next/cache";
-import { getRecommendationsForProfile } from "./get-recommendation";
 
 export async function createSkincareProfile(data: SkinProfileFormData) {
   const session = await auth();
@@ -25,9 +24,6 @@ export async function createSkincareProfile(data: SkinProfileFormData) {
       ...(data as any),
     },
   });
-
-  // Generate recommendations immediately
-  await getRecommendationsForProfile();
 
   revalidatePath("/app");
   revalidatePath("/app/catalog");

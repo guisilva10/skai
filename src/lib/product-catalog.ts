@@ -209,6 +209,38 @@ export async function getProductsByCategory(): Promise<ProductCatalog> {
   return catalog;
 }
 
+// Normaliza o nome do produto removendo tamanhos e volumes
+function normalizeProductName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(
+      /\d+\s*(ml|g|mg|kg|l|litro|litros|gramas?|miligramas?|quilogramas?)/gi,
+      "",
+    ) // Remove tamanhos
+    .replace(/\d+\s*unidades?/gi, "") // Remove "X unidades"
+    .replace(/kit\s+/gi, "") // Remove "kit"
+    .replace(/refil/gi, "") // Remove "refil"
+    .replace(/\s+/g, " ") // Normaliza espaços
+    .trim();
+}
+
+// Remove produtos duplicados baseando-se no nome normalizado
+function removeDuplicateProducts(products: Product[]): Product[] {
+  const seen = new Map<string, Product>();
+
+  for (const product of products) {
+    const normalizedName = normalizeProductName(product.name);
+    const key = `${product.brand}-${normalizedName}`;
+
+    // Se ainda não vimos este produto, ou se o atual é mais barato, mantemos ele
+    if (!seen.has(key) || seen.get(key)!.price > product.price) {
+      seen.set(key, product);
+    }
+  }
+
+  return Array.from(seen.values());
+}
+
 // Retorna catálogo resumido para enviar ao OpenAI (sem descrições longas)
 export async function getProductsForAI(limitPerCategory: number = 30): Promise<{
   limpeza: {
@@ -242,14 +274,18 @@ export async function getProductsForAI(limitPerCategory: number = 30): Promise<{
 }> {
   const catalog = await getProductsByCategory();
 
-  const summarize = (products: Product[], limit: number) =>
-    products.slice(0, limit).map((p) => ({
+  const summarize = (products: Product[], limit: number) => {
+    // Remove duplicatas antes de limitar
+    const uniqueProducts = removeDuplicateProducts(products);
+
+    return uniqueProducts.slice(0, limit).map((p) => ({
       id: p.id,
       name: p.name,
       brand: p.brand,
       price: p.price,
       source: p.source,
     }));
+  };
 
   return {
     limpeza: summarize(catalog.limpeza, limitPerCategory),

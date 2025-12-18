@@ -8,7 +8,6 @@ import { QuizProgress } from "./quiz-progress";
 import { QuizSectionCard } from "./quiz-section-card";
 import { QuizNavigation } from "./quiz-navigation";
 import { createSkincareProfile } from "@/features/skin-profile/server/create-skincare-profile";
-import { getRecommendationsForProfile } from "@/features/skin-profile/server/get-recommendation";
 import { toast } from "sonner";
 import {
   IconPencil,
@@ -71,6 +70,11 @@ export function QuizWizard({
       hasExistingRecommendations,
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+  }>({ show: false, title: "", message: "" });
 
   const isEditMode = initialData !== null && initialData !== undefined;
 
@@ -105,28 +109,47 @@ export function QuizWizard({
       // Save profile to database
       await createSkincareProfile(formData);
 
-      // Generate recommendations immediately
-      setLoadingMessage("Consultando produtos...");
-      await getRecommendationsForProfile();
+      // Redirect to Cakto checkout
+      setLoadingMessage("Redirecionando para pagamento...");
 
-      toast.success(
-        isEditMode
-          ? "Perfil atualizado com sucesso!"
-          : "Perfil salvo com sucesso!",
-        {
-          description: "Suas recomendações estão prontas!",
-        },
-      );
+      // Import the checkout function
+      const { createSubscriptionCheckout } =
+        await import("@/features/subscription/server/create-checkout");
 
-      // Redirect to catalog to see recommendations
-      router.push("/app/catalog");
-      router.refresh();
-    } catch (error) {
+      // This will redirect to Cakto checkout page
+      await createSubscriptionCheckout();
+
+      // The redirect happens in the server action, so we won't reach here
+    } catch (error: any) {
       console.error(error);
       setIsSubmitting(false);
       setLoadingMessage("");
-      toast.error("Erro ao salvar perfil", {
-        description: "Tente novamente mais tarde.",
+
+      // Detecta tipo de erro e mostra mensagem apropriada
+      let errorTitle = "Erro ao processar";
+      let errorMessage =
+        "Ocorreu um erro ao processar sua solicitação. Tente novamente.";
+
+      if (error?.message?.includes("QUOTA_EXCEEDED")) {
+        errorTitle = "Limite de requisições atingido";
+        errorMessage =
+          "A API do Gemini atingiu o limite de requisições. Por favor, aguarde alguns minutos e tente novamente.";
+      } else if (error?.message?.includes("API_KEY_ERROR")) {
+        errorTitle = "Erro de configuração";
+        errorMessage =
+          "Erro de autenticação com a API. Entre em contato com o suporte.";
+      } else if (error?.message?.includes("API_ERROR")) {
+        errorTitle = "Erro na API";
+        errorMessage = error.message.replace("API_ERROR: ", "");
+      } else if (error?.message?.includes("Cakto")) {
+        errorTitle = "Erro no checkout";
+        errorMessage = "Não foi possível criar o checkout. Tente novamente.";
+      }
+
+      setErrorDialog({
+        show: true,
+        title: errorTitle,
+        message: errorMessage,
       });
     }
   };
@@ -175,6 +198,40 @@ export function QuizWizard({
               <IconPencil className="mr-2 h-4 w-4" />
               Editar Quiz
             </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
+
+  // Error dialog
+  if (errorDialog.show) {
+    return (
+      <AlertDialog
+        open={errorDialog.show}
+        onOpenChange={(open) => setErrorDialog({ ...errorDialog, show: open })}
+      >
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="bg-destructive/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <IconSparkles className="text-destructive h-8 w-8" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              {errorDialog.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {errorDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() =>
+                setErrorDialog({ show: false, title: "", message: "" })
+              }
+              className="w-full"
+            >
+              Entendi
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -4,6 +4,7 @@ import { auth } from "@/services/auth";
 import db from "@/services/database/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getProductsForAI, getProductById } from "@/lib/product-catalog";
+import { redirect } from "next/navigation";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -20,13 +21,36 @@ async function retryWithBackoff<T>(
       return await fn();
     } catch (error: any) {
       lastError = error;
+
+      // Verifica se é erro de quota (429)
+      if (
+        error?.message?.includes("429") ||
+        error?.message?.includes("quota")
+      ) {
+        throw new Error(
+          "QUOTA_EXCEEDED: Limite de requisições da API atingido. Por favor, tente novamente em alguns minutos.",
+        );
+      }
+
+      // Verifica se é erro de autenticação
+      if (
+        error?.message?.includes("401") ||
+        error?.message?.includes("API key")
+      ) {
+        throw new Error(
+          "API_KEY_ERROR: Erro de autenticação com a API. Verifique a configuração.",
+        );
+      }
+
       const isRetryable =
         error?.message?.includes("503") ||
         error?.message?.includes("Service Unavailable") ||
         error?.message?.includes("overloaded");
 
       if (!isRetryable || attempt === maxRetries - 1) {
-        throw error;
+        throw new Error(
+          `API_ERROR: ${error?.message || "Erro ao processar sua solicitação. Tente novamente."}`,
+        );
       }
 
       const delay = initialDelay * Math.pow(2, attempt);
@@ -43,7 +67,13 @@ async function retryWithBackoff<T>(
 export type ProductRecommendation = {
   id: string;
   name: string;
-  category: "Limpeza" | "Hidratação" | "Tratamento" | "Proteção Solar";
+  category:
+    | "Sabonetes Faciais"
+    | "Hidratantes Faciais"
+    | "Vitamina C"
+    | "Demaquilantes"
+    | "Protetores Solares"
+    | "Tratamentos";
   description: string;
   searchTerms: string[];
 };
@@ -65,29 +95,66 @@ type AIRecommendation = {
 };
 
 type AIResponse = {
-  limpeza: AIRecommendation[];
-  hidratacao: AIRecommendation[];
-  tratamento: AIRecommendation[];
-  protecaoSolar: AIRecommendation[];
+  sabonetesFaciais: AIRecommendation[];
+  hidratantesFaciais: AIRecommendation[];
+  vitaminaC: AIRecommendation[];
+  demaquilantes: AIRecommendation[];
+  protetoresSolares: AIRecommendation[];
+  tratamentos: AIRecommendation[];
 };
 
 const RECOMMENDATION_PROMPT = `Você é uma dermatologista especialista em skincare. 
 Analise o perfil de pele do usuário e selecione os melhores produtos do catálogo fornecido.
 
+ATENÇÃO: Cada categoria deve conter APENAS produtos específicos daquela categoria. NÃO misture tipos de produtos.
+
+CATEGORIAS DE PRODUTOS (SIGA RIGOROSAMENTE):
+
+1. sabonetesFaciais: 
+   - APENAS géis de limpeza facial SEM função demaquilante, espumas de limpeza, sabonetes faciais líquidos
+   - SE o produto tiver "micelar" no nome, NÃO coloque aqui - coloque em demaquilantes
+   - NÃO incluir águas micelares, cleansing balm, cleansing oil ou qualquer produto demaquilante
+
+2. hidratantesFaciais: 
+   - APENAS cremes hidratantes faciais, gel-cremes, loções hidratantes faciais
+   - NÃO incluir séruns ou tratamentos aqui
+
+3. vitaminaC: 
+   - APENAS séruns e produtos com Vitamina C como ingrediente principal
+   - NÃO incluir outros tipos de séruns aqui
+
+4. demaquilantes: 
+   - APENAS águas micelares, cleansing balm, cleansing oil, removedores de maquiagem
+   - NÃO incluir sabonetes faciais aqui
+
+5. protetoresSolares: 
+   - APENAS protetores solares faciais (FPS 30+)
+   - NÃO incluir hidratantes com FPS aqui
+
+6. tratamentos: 
+   - APENAS séruns (exceto vitamina C), ácidos (AHA, BHA, retinol), tratamentos anti-idade, clareadores
+   - NÃO incluir hidratantes ou vitamina C aqui
+
 REGRAS IMPORTANTES:
-1. Selecione EXATAMENTE 5 produtos de cada categoria (Limpeza, Hidratação, Tratamento, Proteção Solar)
-2. DISTRIBUIÇÃO OBRIGATÓRIA: Em cada categoria, selecione 3 produtos da loja "amobeleza" e 2 da loja "labko"
-3. Considere o perfil de pele do usuário para fazer recomendações personalizadas
-4. Para cada produto, forneça uma breve razão (máximo 80 caracteres) do porquê ele é ideal
-5. Use APENAS os IDs de produtos que estão no catálogo fornecido
-6. NÃO repita o mesmo produto
+1. Selecione EXATAMENTE 15 produtos de cada categoria
+2. ORDENE os produtos do MAIS BARATO para o MAIS CARO (pelo campo "price")
+3. DISTRIBUIÇÃO: Mescle produtos entre as lojas "amobeleza" e "labko" (aproximadamente 50/50)
+4. Considere o perfil de pele do usuário para fazer recomendações personalizadas
+5. Para cada produto, forneça uma breve razão (máximo 80 caracteres) do porquê ele é ideal
+6. Use APENAS os IDs de produtos que estão no catálogo fornecido
+7. NÃO repita o mesmo produto em categorias diferentes
+8. NÃO repita produtos com mesmo nome mas tamanhos diferentes (ex: "Produto 100ml" e "Produto 200ml" - escolha apenas UM)
+9. IGNORE produtos corporais, foque apenas em produtos FACIAIS
+10. Leia atentamente o nome e descrição do produto antes de categorizá-lo
 
 Retorne APENAS um JSON válido no seguinte formato (sem markdown, sem explicações, apenas o JSON puro):
 {
-  "limpeza": [{"productId": "id_do_produto", "reason": "Razão breve"}],
-  "hidratacao": [{"productId": "id_do_produto", "reason": "Razão breve"}],
-  "tratamento": [{"productId": "id_do_produto", "reason": "Razão breve"}],
-  "protecaoSolar": [{"productId": "id_do_produto", "reason": "Razão breve"}]
+  "sabonetesFaciais": [{"productId": "id_do_produto", "reason": "Razão breve"}],
+  "hidratantesFaciais": [{"productId": "id_do_produto", "reason": "Razão breve"}],
+  "vitaminaC": [{"productId": "id_do_produto", "reason": "Razão breve"}],
+  "demaquilantes": [{"productId": "id_do_produto", "reason": "Razão breve"}],
+  "protetoresSolares": [{"productId": "id_do_produto", "reason": "Razão breve"}],
+  "tratamentos": [{"productId": "id_do_produto", "reason": "Razão breve"}]
 }`;
 
 function formatProfileForAI(profile: any): string {
@@ -134,13 +201,56 @@ PERFIL DE PELE DO USUÁRIO:
 `;
 }
 
-export async function getRecommendationsForProfile(): Promise<
-  ProductRecommendationWithUrls[]
-> {
+// Função para remover duplicatas de recomendações (produtos com mesmo nome mas tamanhos diferentes)
+function removeDuplicateRecommendations(
+  recommendations: ProductRecommendationWithUrls[],
+): ProductRecommendationWithUrls[] {
+  const seen = new Map<string, ProductRecommendationWithUrls>();
+
+  for (const rec of recommendations) {
+    // Normaliza o nome removendo tamanhos
+    const normalizedName = rec.name
+      .toLowerCase()
+      .replace(
+        /\d+\s*(ml|g|mg|kg|l|litro|litros|gramas?|miligramas?|quilogramas?)/gi,
+        "",
+      )
+      .replace(/\d+\s*unidades?/gi, "")
+      .replace(/kit\s+/gi, "")
+      .replace(/refil/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const key = `${rec.category}-${normalizedName}`;
+
+    // Se ainda não vimos este produto, ou se o atual é mais barato, mantemos ele
+    if (
+      !seen.has(key) ||
+      (rec.price && seen.get(key)!.price && rec.price < seen.get(key)!.price!)
+    ) {
+      seen.set(key, rec);
+    }
+  }
+
+  return Array.from(seen.values());
+}
+
+export async function getRecommendationsForProfile(
+  userId?: string,
+): Promise<ProductRecommendationWithUrls[]> {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error("Usuário não autenticado.");
+    let targetUserId: string;
+
+    if (userId) {
+      // Called from webhook with specific userId
+      targetUserId = userId;
+    } else {
+      // Called from user session
+      const session = await auth();
+      if (!session?.user?.id) {
+        throw new Error("Usuário não autenticado.");
+      }
+      targetUserId = session.user.id;
     }
 
     if (!process.env.GEMINI_API_KEY) {
@@ -150,7 +260,7 @@ export async function getRecommendationsForProfile(): Promise<
     }
 
     const userProfile = await db.skinProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: targetUserId },
     });
 
     if (!userProfile) {
@@ -164,7 +274,7 @@ export async function getRecommendationsForProfile(): Promise<
 
     console.log("[AI_RECOMMENDATION] Enviando para Gemini...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `${RECOMMENDATION_PROMPT}
 
@@ -202,10 +312,12 @@ ${JSON.stringify(catalog, null, 2)}`;
     const recommendationsWithUrls: ProductRecommendationWithUrls[] = [];
 
     const categoryMap = {
-      limpeza: "Limpeza" as const,
-      hidratacao: "Hidratação" as const,
-      tratamento: "Tratamento" as const,
-      protecaoSolar: "Proteção Solar" as const,
+      sabonetesFaciais: "Sabonetes Faciais" as const,
+      hidratantesFaciais: "Hidratantes Faciais" as const,
+      vitaminaC: "Vitamina C" as const,
+      demaquilantes: "Demaquilantes" as const,
+      protetoresSolares: "Protetores Solares" as const,
+      tratamentos: "Tratamentos" as const,
     };
 
     for (const [categoryKey, categoryName] of Object.entries(categoryMap)) {
@@ -235,40 +347,63 @@ ${JSON.stringify(catalog, null, 2)}`;
       }
     }
 
+    // ✅ Remove duplicatas (produtos com mesmo nome mas tamanhos diferentes)
+    console.log(
+      `[AI_RECOMMENDATION] Produtos antes da deduplicação: ${recommendationsWithUrls.length}`,
+    );
+    const deduplicatedRecommendations = removeDuplicateRecommendations(
+      recommendationsWithUrls,
+    );
+    console.log(
+      `[AI_RECOMMENDATION] Produtos após deduplicação: ${deduplicatedRecommendations.length}`,
+    );
+
     try {
       console.log("[AI_RECOMMENDATION] Salvando recomendações no banco...");
 
+      // Limpa recomendações antigas primeiro
+      await db.productRecommendation.deleteMany({
+        where: { userId: targetUserId },
+      });
+
+      // Salva todas as recomendações de uma vez (SEM duplicatas)
       await db.productRecommendation.createMany({
-        data: recommendationsWithUrls.map((rec) => ({
+        data: deduplicatedRecommendations.map((rec) => ({
           productId: rec.id,
           name: rec.name,
           category: rec.category,
           description: rec.description,
           searchTerms: rec.searchTerms || [],
-          userId: session.user.id,
+          userId: targetUserId,
         })),
       });
 
-      for (const rec of recommendationsWithUrls) {
-        const savedRec = await db.productRecommendation.findFirst({
-          where: {
-            productId: rec.id,
-            userId: session.user.id,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
+      // Busca todos os IDs salvos de uma vez (batch)
+      const savedRecs = await db.productRecommendation.findMany({
+        where: { userId: targetUserId },
+        select: { id: true, productId: true },
+      });
 
-        if (savedRec && rec.purchaseUrls.length > 0) {
-          await db.purchaseUrl.createMany({
-            data: rec.purchaseUrls.map((url) => ({
-              storeName: url.storeName,
-              url: url.url,
-              recommendationId: savedRec.id,
-            })),
-          });
-        }
+      // Cria um mapa para lookup rápido
+      const recMap = new Map(savedRecs.map((r) => [r.productId, r.id]));
+
+      // Prepara todas as URLs para inserção em batch
+      const allUrls = deduplicatedRecommendations.flatMap((rec) => {
+        const savedRecId = recMap.get(rec.id);
+        if (!savedRecId || rec.purchaseUrls.length === 0) return [];
+
+        return rec.purchaseUrls.map((url) => ({
+          storeName: url.storeName,
+          url: url.url,
+          recommendationId: savedRecId,
+        }));
+      });
+
+      // Insere todas as URLs de uma vez
+      if (allUrls.length > 0) {
+        await db.purchaseUrl.createMany({
+          data: allUrls,
+        });
       }
 
       console.log("[AI_RECOMMENDATION] Recomendações salvas com sucesso!");
@@ -276,9 +411,10 @@ ${JSON.stringify(catalog, null, 2)}`;
       console.error("[SAVE_RECOMMENDATIONS_ERROR]", dbError);
     }
 
-    return recommendationsWithUrls;
+    // Return recommendations instead of redirecting
+    return deduplicatedRecommendations;
   } catch (error) {
     console.error("[GET_RECOMMENDATIONS_ERROR]", error);
-    return [];
+    throw error;
   }
 }
