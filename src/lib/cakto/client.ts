@@ -30,6 +30,7 @@ async function getAccessToken(): Promise<string> {
 
   // Cakto expects x-www-form-urlencoded for the token endpoint
   const params = new URLSearchParams();
+  params.append("grant_type", "client_credentials");
   params.append("client_id", CAKTO_CLIENT_ID);
   params.append("client_secret", CAKTO_CLIENT_SECRET);
 
