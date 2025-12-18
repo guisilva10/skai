@@ -2,11 +2,9 @@
 
 import { auth } from "@/services/auth";
 import db from "@/services/database/prisma";
-import { createCaktoCheckout } from "@/lib/cakto/client";
 import { redirect } from "next/navigation";
 
-const CAKTO_PRODUCT_ID = process.env.CAKTO_SUBSCRIPTION_PRODUCT_ID;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const CAKTO_CHECKOUT_LINK = process.env.CKATO_CHECKOUT_LINK;
 
 export async function createSubscriptionCheckout(): Promise<never> {
   const session = await auth();
@@ -15,23 +13,13 @@ export async function createSubscriptionCheckout(): Promise<never> {
     throw new Error("Usuário não autenticado");
   }
 
-  if (!CAKTO_PRODUCT_ID) {
+  if (!CAKTO_CHECKOUT_LINK) {
     throw new Error(
-      "ID do produto Cakto não configurado. Adicione CAKTO_SUBSCRIPTION_PRODUCT_ID no .env",
+      "Link do checkout Cakto não configurado. Adicione CKATO_CHECKOUT_LINK no .env",
     );
   }
 
   try {
-    // Create checkout in Cakto
-    const checkout = await createCaktoCheckout({
-      productId: CAKTO_PRODUCT_ID,
-      customerName: session.user.name || session.user.email,
-      customerEmail: session.user.email,
-      customerId: session.user.id,
-      successUrl: `${APP_URL}/app/checkout/callback?success=true`,
-      cancelUrl: `${APP_URL}/app/checkout/callback?success=false`,
-    });
-
     // Update user status to PENDING
     await db.user.update({
       where: { id: session.user.id },
@@ -40,10 +28,19 @@ export async function createSubscriptionCheckout(): Promise<never> {
       },
     });
 
-    console.log("[CAKTO_CHECKOUT] Created checkout:", checkout.id);
+    console.log("[CAKTO_CHECKOUT] Redirecting user to Cakto:", session.user.id);
+
+    // Build checkout URL with user data as query parameters
+    const checkoutUrl = new URL(CAKTO_CHECKOUT_LINK);
+    checkoutUrl.searchParams.set("customer_email", session.user.email);
+    checkoutUrl.searchParams.set(
+      "customer_name",
+      session.user.name || session.user.email,
+    );
+    checkoutUrl.searchParams.set("customer_id", session.user.id);
 
     // Redirect to Cakto checkout
-    redirect(checkout.checkoutUrl);
+    redirect(checkoutUrl.toString());
   } catch (error) {
     console.error("[CAKTO_CHECKOUT_ERROR]", error);
     throw error;
