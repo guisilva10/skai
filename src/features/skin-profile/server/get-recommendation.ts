@@ -112,8 +112,9 @@ CATEGORIAS DE PRODUTOS (SIGA RIGOROSAMENTE):
 
 1. sabonetesFaciais: 
    - APENAS géis de limpeza facial SEM função demaquilante, espumas de limpeza, sabonetes faciais líquidos
-   - SE o produto tiver "micelar" no nome, NÃO coloque aqui - coloque em demaquilantes
+   - NUNCA incluir produtos com "micelar" ou "micellar" no nome - esses são demaquilantes
    - NÃO incluir águas micelares, cleansing balm, cleansing oil ou qualquer produto demaquilante
+   - Produtos de "segunda limpeza" (após demaquilante) devem vir aqui
 
 2. hidratantesFaciais: 
    - APENAS cremes hidratantes faciais, gel-cremes, loções hidratantes faciais
