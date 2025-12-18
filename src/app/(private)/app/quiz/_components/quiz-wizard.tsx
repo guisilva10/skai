@@ -29,6 +29,7 @@ import {
 interface QuizWizardProps {
   initialData?: SkinProfileFormData | null;
   hasExistingRecommendations?: boolean;
+  hasActiveSubscription?: boolean;
 }
 
 // Loading Overlay Component
@@ -56,6 +57,7 @@ function LoadingOverlay({ message }: { message: string }) {
 export function QuizWizard({
   initialData,
   hasExistingRecommendations = false,
+  hasActiveSubscription = false,
 }: QuizWizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
@@ -77,6 +79,11 @@ export function QuizWizard({
   }>({ show: false, title: "", message: "" });
 
   const isEditMode = initialData !== null && initialData !== undefined;
+
+  console.log(
+    "[QUIZ_WIZARD] Received hasActiveSubscription prop:",
+    hasActiveSubscription,
+  );
 
   const currentSection = quizSections[currentStep];
   const totalSteps = quizSections.length;
@@ -109,15 +116,40 @@ export function QuizWizard({
       // Save profile to database
       await createSkincareProfile(formData);
 
-      // Redirect to Cakto checkout
-      setLoadingMessage("Redirecionando para pagamento...");
+      console.log(
+        "[QUIZ_WIZARD] handleSubmit - hasActiveSubscription:",
+        hasActiveSubscription,
+      );
 
-      // Import the checkout function
-      const { createSubscriptionCheckout } =
-        await import("@/features/subscription/server/create-checkout");
+      // Check if user has active subscription
+      if (hasActiveSubscription) {
+        console.log(
+          "[QUIZ_WIZARD] User has active subscription - generating recommendations",
+        );
+        // User already paid - generate recommendations directly
+        setLoadingMessage("Gerando suas recomendações personalizadas...");
 
-      // This will redirect to Cakto checkout page
-      await createSubscriptionCheckout();
+        // Import the recommendation function
+        const { getRecommendationsForProfile } =
+          await import("@/features/skin-profile/server/get-recommendation");
+
+        // Generate recommendations (it will use current user from session)
+        await getRecommendationsForProfile();
+
+        // Redirect to catalog
+        toast.success("Recomendações atualizadas com sucesso!");
+        router.push("/app/catalog");
+      } else {
+        // User hasn't paid - redirect to checkout
+        setLoadingMessage("Redirecionando para pagamento...");
+
+        // Import the checkout function
+        const { createSubscriptionCheckout } =
+          await import("@/features/subscription/server/create-checkout");
+
+        // This will redirect to Cakto checkout page
+        await createSubscriptionCheckout();
+      }
 
       // The redirect happens in the server action, so we won't reach here
     } catch (error: any) {

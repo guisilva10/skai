@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { QuizWizard } from "./_components/quiz-wizard";
 import { getSkinProfile } from "@/features/skin-profile/server/get-skin-profile";
 import { getUserRecommendations } from "@/features/skin-profile/server/get-user-recommendations";
+import { getSubscriptionStatus } from "@/features/subscription/server/get-subscription-status";
 import { SkinProfileFormData } from "@/types";
 
 // Marcar a rota como dinâmica para evitar warning no build
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
 export default async function QuizPage() {
   let existingProfile: SkinProfileFormData | null = null;
   let hasExistingRecommendations = false;
+  let hasActiveSubscription = false;
 
   try {
     const profile = await getSkinProfile();
@@ -43,6 +45,18 @@ export default async function QuizPage() {
       const recommendations = await getUserRecommendations();
       hasExistingRecommendations = recommendations.length > 0;
     }
+
+    // Verificar se tem assinatura ativa
+    const subscriptionStatus = await getSubscriptionStatus();
+    console.log(
+      "[QUIZ_PAGE] Subscription status from server:",
+      subscriptionStatus,
+    );
+    hasActiveSubscription = subscriptionStatus === "ACTIVE";
+    console.log(
+      "[QUIZ_PAGE] Has active subscription (subscriptionStatus === 'ACTIVE'):",
+      hasActiveSubscription,
+    );
   } catch {
     // Usuário não autenticado ou sem perfil
     existingProfile = null;
@@ -52,6 +66,7 @@ export default async function QuizPage() {
     <QuizWizard
       initialData={existingProfile}
       hasExistingRecommendations={hasExistingRecommendations}
+      hasActiveSubscription={hasActiveSubscription}
     />
   );
 }

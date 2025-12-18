@@ -137,7 +137,7 @@ CATEGORIAS DE PRODUTOS (SIGA RIGOROSAMENTE):
    - NÃO incluir hidratantes ou vitamina C aqui
 
 REGRAS IMPORTANTES:
-1. Selecione EXATAMENTE 15 produtos de cada categoria
+1. Selecione EXATAMENTE 10 produtos de cada categoria (total de 60 produtos)
 2. ORDENE os produtos do MAIS BARATO para o MAIS CARO (pelo campo "price")
 3. DISTRIBUIÇÃO: Mescle produtos entre as lojas "amobeleza" e "labko" (aproximadamente 50/50)
 4. Considere o perfil de pele do usuário para fazer recomendações personalizadas
@@ -187,16 +187,61 @@ function formatProfileForAI(profile: any): string {
 
   return `
 PERFIL DE PELE DO USUÁRIO:
-- Características: ${characteristics.length ? characteristics.join(", ") : "Nenhuma especificada"}
-- Condições dermatológicas: ${conditions.length ? conditions.join(", ") : "Nenhuma"}
-- Objetivos: ${goals.length ? goals.join("; ") : "Não especificado"}
+
+CARACTERÍSTICAS DA PELE:
+- Repuxa após lavar: ${profile.feelsTightAfterWashing ? "Sim" : "Não"}
+- Fica brilhosa: ${profile.getsShinySkin ? "Sim" : "Não"}
+- Poros dilatados: ${profile.hasDilatedPores ? `Sim (${profile.dilatedPoresLocation || "não especificado"})` : "Não"}
+- Pele descama: ${profile.hasFlakingSkin ? "Sim" : "Não"}
+- Fica vermelha facilmente: ${profile.getsRedEasily ? "Sim" : "Não"}
+- Arde com cosméticos: ${profile.cosmeticsBurn ? "Sim" : "Não"}
+- Área de produção de óleo: ${profile.oilProductionArea || "Não especificado"}
+
+CONDIÇÕES DERMATOLÓGICAS:
+- Acne: ${profile.hasAcne ? "Sim" : "Não"}
+- Rosácea: ${profile.hasRosacea ? "Sim" : "Não"}
+- Melasma: ${profile.hasMelasma ? "Sim" : "Não"}
+- Dermatite Atópica: ${profile.hasAtopicDermatitis ? "Sim" : "Não"}
+- Dermatite Seborreica: ${profile.hasSeborrheicDermatitis ? "Sim" : "Não"}
+- Psoríase: ${profile.hasPsoriasis ? "Sim" : "Não"}
+
+OBJETIVOS E METAS:
+- Objetivo principal: ${profile.mainGoal || "Não especificado"}
+- Objetivos secundários: ${profile.secondaryGoals?.length ? profile.secondaryGoals.join(", ") : "Nenhum"}
+
+TRATAMENTOS E MEDICAÇÕES:
 - Tratamento atual: ${profile.currentTreatment || "Nenhum"}
-- Alergias: ${profile.hasAllergies ? profile.allergyDetails || "Sim" : "Não"}
+- Medicação atual: ${profile.currentMedication || "Nenhuma"}
+- Tratamento hormonal: ${profile.hormonalTreatment ? `Sim (${profile.hormonalTreatmentType || "não especificado"})` : "Não"}
+- Usa antibióticos: ${profile.usesAntibiotics ? "Sim" : "Não"}
+- Usa corticoides: ${profile.usesCorticoids ? "Sim" : "Não"}
+- Já tentou retinol: ${profile.triedRetinol ? `Sim (reação: ${profile.retinolReaction || "não especificada"})` : "Não"}
+
+PROCEDIMENTOS ESTÉTICOS:
+- Procedimentos recentes: ${profile.recentProcedures ? `Sim (${profile.procedureType || "não especificado"} em ${profile.procedureDate || "data não especificada"})` : "Não"}
+
+ALERGIAS E SENSIBILIDADES:
+- Tem alergias: ${profile.hasAllergies ? `Sim (${profile.allergyDetails || "detalhes não especificados"})` : "Não"}
 - Ingredientes irritantes: ${profile.irritatingIngredients?.length ? profile.irritatingIngredients.join(", ") : "Nenhum"}
+- Frequência de irritação: ${profile.skinIrritationFrequency || "Não especificado"}
+
+ESTILO DE VIDA:
 - Exposição solar: ${profile.sunExposure || "Não informado"}
-- Usa protetor diariamente: ${profile.usesSunscreenDaily ? "Sim" : "Não"}
-- Clima: ${profile.climate || "Não informado"}
-- Preferência de textura: ${profile.preferredTexture?.length ? profile.preferredTexture.join(", ") : "Não especificada"}
+- Usa protetor solar diariamente: ${profile.usesSunscreenDaily ? "Sim" : "Não"}
+- Clima onde vive: ${profile.climate || "Não informado"}
+- Dorme com ar condicionado: ${profile.sleepsWithAC ? "Sim" : "Não"}
+- Pratica exercícios intensos: ${profile.intensiveWorkout ? "Sim" : "Não"}
+- Dieta: ${profile.diet || "Não especificada"}
+- Usa maquiagem: ${profile.usesMakeup || "Não especificado"}
+
+ROTINA ATUAL:
+- Frequência de limpeza: ${profile.cleansingFrequency || "Não especificado"}
+- Etapas da rotina: ${profile.routineSteps || "Não especificado"}
+- Produtos manhã: ${profile.morningProducts?.length ? profile.morningProducts.join(", ") : "Nenhum"}
+- Produtos noite: ${profile.nightProducts?.length ? profile.nightProducts.join(", ") : "Nenhum"}
+
+PREFERÊNCIAS:
+- Textura preferida: ${profile.preferredTexture?.length ? profile.preferredTexture.join(", ") : "Não especificada"}
 - Preferência de fragrância: ${profile.prefersFragrance || "Não especificada"}
 - Preferência de marca: ${profile.brandPreference || "Não especificada"}
 `;
@@ -269,13 +314,13 @@ export async function getRecommendationsForProfile(
     }
 
     console.log("[AI_RECOMMENDATION] Carregando catálogo de produtos...");
-    const catalog = await getProductsForAI(30);
+    const catalog = await getProductsForAI(25);
 
     const profileText = formatProfileForAI(userProfile);
 
     console.log("[AI_RECOMMENDATION] Enviando para Gemini...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `${RECOMMENDATION_PROMPT}
 
