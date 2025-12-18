@@ -46,6 +46,26 @@ async function getAccessToken(): Promise<string> {
     const errorText = await response.text();
     console.error("[CAKTO_AUTH_ERROR] Status:", response.status);
     console.error("[CAKTO_AUTH_ERROR] Response:", errorText);
+    console.error(
+      "[CAKTO_AUTH_ERROR] Request URL:",
+      `${CAKTO_API_URL}/public_api/token/`,
+    );
+    console.error(
+      "[CAKTO_AUTH_ERROR] Client ID (first 10 chars):",
+      CAKTO_CLIENT_ID?.substring(0, 10),
+    );
+
+    // Try to parse error as JSON for more details
+    try {
+      const errorJson = JSON.parse(errorText);
+      console.error(
+        "[CAKTO_AUTH_ERROR] Parsed error:",
+        JSON.stringify(errorJson, null, 2),
+      );
+    } catch {
+      // Not JSON, already logged as text
+    }
+
     throw new Error(
       `Failed to get Cakto access token: ${response.status} ${errorText}`,
     );
