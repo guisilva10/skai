@@ -36,6 +36,7 @@ model User {
   ProductRecommendation ProductRecommendation[]
   sessions              Session[]
   skinProfile           SkinProfile?
+  feedbacks             Feedback[]
 }
 
 model Account {
@@ -153,6 +154,7 @@ model ProductRecommendation {
   updatedAt   DateTime      @updatedAt
   User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   PurchaseUrl PurchaseUrl[]
+  feedbacks   Feedback[]
 
   @@index([userId])
 }
@@ -164,4 +166,18 @@ model PurchaseUrl {
   recommendationId      String
   createdAt             DateTime              @default(now())
   ProductRecommendation ProductRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+}
+
+model Feedback {
+  id                      String                 @id @default(cuid())
+  name                    String
+  role                    String?
+  message                 String
+  imageUrl                String?
+  userId                  String?
+  user                    User?                  @relation(fields: [userId], references: [id])
+  createdAt               DateTime               @default(now())
+  approved                Boolean                @default(true)
+  productRecommendation   ProductRecommendation? @relation(fields: [productRecommendationId], references: [id])
+  productRecommendationId String?
 }

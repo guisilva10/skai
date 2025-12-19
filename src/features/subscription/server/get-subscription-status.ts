@@ -2,10 +2,6 @@ import { auth } from "@/services/auth";
 import db from "@/services/database/prisma";
 
 /**
-import { auth } from "@/services/auth";
-import db from "@/services/database/prisma";
-
-/**
  * Get the subscription status for the current authenticated user
  * @returns The subscription status ('ACTIVE', 'PENDING', 'CANCELED', 'EXPIRED') or null if not found
  */
