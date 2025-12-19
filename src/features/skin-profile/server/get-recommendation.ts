@@ -495,10 +495,10 @@ ${JSON.stringify(catalog, null, 2)}`;
     try {
       console.log("[AI_RECOMMENDATION] Salvando recomendações no banco...");
 
-      // Limpa recomendações antigas primeiro
-      await db.productRecommendation.deleteMany({
-        where: { userId: targetUserId },
-      });
+      // Limpa recomendações antigas primeiro - REMOVIDO para não apagar favoritos
+      // await db.productRecommendation.deleteMany({
+      //   where: { userId: targetUserId },
+      // });
 
       // Salva todas as recomendações de uma vez (SEM duplicatas)
       // LIMITA A 10 PRODUTOS POR CATEGORIA AQUI, se necessário, ou salva tudo
