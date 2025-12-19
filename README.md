@@ -26,14 +26,25 @@ SKAI é uma plataforma inovadora que utiliza Inteligência Artificial avançada 
 - **Catálogo Pessoal:** Todos os seus produtos favoritos ficam organizados em um só lugar, facilitando a compra e a consulta da sua rotina.
 - **Sempre Atualizado:** Se sua pele mudar, você pode gerar novas recomendações a qualquer momento.
 
+### 4. Comunidade e Feedback
+
+- **Depoimentos Reais:** Veja o que outros usuários estão dizendo sobre suas experiências com o SKAI.
+- **Seu Feedback Importa:** Compartilhe sua jornada e ajude a melhorar a plataforma. Seus feedbacks são destacados para inspirar outros usuários.
+
+### 5. Assinatura e Benefícios
+
+- **Plano Premium:** Tenha acesso ilimitado a recomendações atualizadas e suporte exclusivo.
+- **Pagamento Simplificado:** Integração segura com Cakto para assinaturas rápidas e fáceis.
+
 ## 🔄 Como Funciona
 
 1.  **Crie sua Conta:** Acesso rápido e seguro.
 2.  **Faça o Quiz:** Conte-nos tudo sobre sua pele em poucos minutos.
-3.  **Receba sua Análise:** Nossa IA processa seus dados instantaneamente.
-4.  **Descubra seus Produtos:** Veja a lista exclusiva de produtos selecionados para você.
-5.  **Monte sua Rotina:** Favorite os produtos que mais gostar para salvar no seu Catálogo.
-6.  **Cuide de Você:** Compre os produtos certos e comece sua jornada para uma pele incrível.
+3.  **Assine o Plano:** Garanta acesso completo às recomendações personalizadas.
+4.  **Receba sua Análise:** Nossa IA processa seus dados instantaneamente após a confirmação do pagamento.
+5.  **Descubra seus Produtos:** Veja a lista exclusiva de produtos selecionados para você.
+6.  **Monte sua Rotina:** Favorite os produtos que mais gostar para salvar no seu Catálogo.
+7.  **Cuide de Você:** Compre os produtos certos e comece sua jornada para uma pele incrível.
 
 ---
 
