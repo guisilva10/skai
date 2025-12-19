@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -14,9 +14,18 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/app/_components/ui/tabs";
-import { IconExternalLink, IconLoader2 } from "@tabler/icons-react";
+import {
+  IconExternalLink,
+  IconLoader2,
+  IconHeart,
+  IconHeartFilled,
+} from "@tabler/icons-react";
+import { toast } from "sonner";
+import { toggleFavorite } from "@/features/favorites/server/toggle-favorite";
+import { checkFavoritedProducts } from "@/features/favorites/server/check-favorited";
+import { cn } from "@/app/_lib/utils";
 
-type CatalogProduct = {
+export type CatalogProduct = {
   id: string;
   productId: string;
   name: string;
@@ -105,6 +114,66 @@ function LoadingState() {
 }
 
 export function CatalogTabs({ recommendations, isLoading }: CatalogTabsProps) {
+  // Estado para controlar favoritos
+  const [favoritesMap, setFavoritesMap] = useState<Record<string, boolean>>({});
+  const [isPending, startTransition] = useTransition();
+
+  // Carregar status de favoritos ao montar
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const productIds = recommendations.map((r) => r.productId);
+      const favorites = await checkFavoritedProducts(productIds);
+      setFavoritesMap(favorites);
+    };
+
+    if (recommendations.length > 0) {
+      loadFavorites();
+    }
+  }, [recommendations]);
+
+  // Handler para favoritar/desfavoritar
+  const handleToggleFavorite = async (product: CatalogProduct) => {
+    // Optimistic update
+    setFavoritesMap((prev) => ({
+      ...prev,
+      [product.productId]: !prev[product.productId],
+    }));
+
+    startTransition(async () => {
+      try {
+        const result = await toggleFavorite({
+          productId: product.productId,
+          name: product.name,
+          category: product.category,
+          description: product.description,
+          searchTerms: product.searchTerms,
+          storeName: product.purchaseUrls[0]?.storeName || "",
+          storeUrl: product.purchaseUrls[0]?.url || "",
+        });
+
+        // Atualizar com resultado real
+        setFavoritesMap((prev) => ({
+          ...prev,
+          [product.productId]: result.isFavorited,
+        }));
+
+        if (result.isFavorited) {
+          toast.success("Produto adicionado aos favoritos!");
+        } else {
+          toast.success("Produto removido dos favoritos.");
+        }
+      } catch (error) {
+        console.error("[TOGGLE_FAVORITE_ERROR]", error);
+        // Reverter em caso de erro
+        setFavoritesMap((prev) => ({
+          ...prev,
+          [product.productId]: !prev[product.productId],
+        }));
+        toast.error("Erro ao atualizar favoritos. Tente novamente.");
+      }
+    });
+  };
+
   // Se estiver carregando, mostrar loading
   if (isLoading) {
     return <LoadingState />;
@@ -190,70 +259,88 @@ export function CatalogTabs({ recommendations, isLoading }: CatalogTabsProps) {
         return (
           <TabsContent key={category} value={category} className="mt-0">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-              {products.map((product) => (
-                <Card
-                  key={product.id}
-                  className="overflow-hidden transition-all hover:shadow-lg"
-                >
-                  {/* Product Image */}
-                  {product.imageUrl && (
-                    <div className="relative aspect-square overflow-hidden">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                  )}
+              {products.map((product) => {
+                const isFavorited = favoritesMap[product.productId] || false;
 
-                  <CardHeader className="border-t py-2 pb-2">
-                    {/* Brand */}
-                    {product.brand && (
-                      <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                        {product.brand}
-                      </span>
-                    )}
-                    <CardTitle className="line-clamp-2 text-sm leading-tight">
-                      {product.name}
-                    </CardTitle>
-                    {/* Price - Comentado por enquanto */}
-                    {/* {product.price && (
-                      <div className="text-primary text-lg font-bold">
-                        {new Intl.NumberFormat("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        }).format(product.price)}
-                      </div>
-                    )} */}
-                  </CardHeader>
-
-                  <CardContent className="space-y-3 pt-0">
-                    {/* Description (reason for recommendation) */}
-                    <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
-                      {product.description}
-                    </p>
-
-                    {/* Purchase Link */}
-                    {product.purchaseUrls.length > 0 && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="h-9 w-full justify-between text-xs"
-                        asChild
-                      >
-                        <a
-                          href={product.purchaseUrls[0].url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                return (
+                  <Card
+                    key={product.id}
+                    className="overflow-hidden transition-all hover:shadow-lg"
+                  >
+                    {/* Product Image with Favorite Button */}
+                    {product.imageUrl && (
+                      <div className="group relative aspect-square overflow-hidden">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="h-full w-full object-contain"
+                        />
+                        {/* Favorite Button */}
+                        <button
+                          onClick={() => handleToggleFavorite(product)}
+                          disabled={isPending}
+                          className={cn(
+                            "absolute top-2 right-2 rounded-full p-2 transition-all",
+                            "bg-white/90 shadow-md hover:bg-white hover:shadow-lg",
+                            "opacity-0 group-hover:opacity-100",
+                            isFavorited && "opacity-100",
+                            isPending && "cursor-not-allowed opacity-50",
+                          )}
+                          aria-label={
+                            isFavorited
+                              ? "Remover dos favoritos"
+                              : "Adicionar aos favoritos"
+                          }
                         >
-                          <span>Ver produto na loja</span>
-                          <IconExternalLink size={14} />
-                        </a>
-                      </Button>
+                          {isFavorited ? (
+                            <IconHeartFilled className="h-5 w-5 text-red-500" />
+                          ) : (
+                            <IconHeart className="h-5 w-5 text-gray-600" />
+                          )}
+                        </button>
+                      </div>
                     )}
-                  </CardContent>
-                </Card>
-              ))}
+
+                    <CardHeader className="border-t py-2 pb-2">
+                      {/* Brand */}
+                      {product.brand && (
+                        <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                          {product.brand}
+                        </span>
+                      )}
+                      <CardTitle className="line-clamp-2 text-sm leading-tight">
+                        {product.name}
+                      </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className="space-y-3 pt-0">
+                      {/* Description (reason for recommendation) */}
+                      <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
+                        {product.description}
+                      </p>
+
+                      {/* Purchase Link */}
+                      {product.purchaseUrls.length > 0 && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="h-9 w-full justify-between text-xs"
+                          asChild
+                        >
+                          <a
+                            href={product.purchaseUrls[0].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <span>Ver produto na loja</span>
+                            <IconExternalLink size={14} />
+                          </a>
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
         );

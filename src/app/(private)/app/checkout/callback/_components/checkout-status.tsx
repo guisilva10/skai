@@ -30,9 +30,9 @@ export function CheckoutStatus() {
           setStatus("success");
           setMessage("Pagamento confirmado! Gerando suas recomendações...");
 
-          // Wait a bit and redirect to catalog
+          // Wait a bit and redirect to recommendations page
           setTimeout(() => {
-            router.push("/app/catalog");
+            router.push("/app/recommendations");
           }, 2000);
         } else if (data.status === "PENDING") {
           // Still pending, check again

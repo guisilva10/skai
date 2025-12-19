@@ -519,52 +519,15 @@ ${JSON.stringify(catalog, null, 2)}`;
         }
       }
 
-      await db.productRecommendation.createMany({
-        data: finalRecommendations.map((rec) => ({
-          productId: rec.id,
-          name: rec.name,
-          category: rec.category,
-          description: rec.description,
-          searchTerms: rec.searchTerms || [],
-          userId: targetUserId,
-        })),
-      });
+      console.log(
+        "[AI_RECOMMENDATION] Recomendações geradas com sucesso (sem salvar no banco)!",
+      );
 
-      // Busca todos os IDs salvos de uma vez (batch)
-      const savedRecs = await db.productRecommendation.findMany({
-        where: { userId: targetUserId },
-        select: { id: true, productId: true },
-      });
-
-      // Cria um mapa para lookup rápido
-      const recMap = new Map(savedRecs.map((r) => [r.productId, r.id]));
-
-      // Prepara todas as URLs para inserção em batch
-      const allUrls = finalRecommendations.flatMap((rec) => {
-        const savedRecId = recMap.get(rec.id);
-        if (!savedRecId || rec.purchaseUrls.length === 0) return [];
-
-        return rec.purchaseUrls.map((url) => ({
-          storeName: url.storeName,
-          url: url.url,
-          recommendationId: savedRecId,
-        }));
-      });
-
-      // Insere todas as URLs de uma vez
-      if (allUrls.length > 0) {
-        await db.purchaseUrl.createMany({
-          data: allUrls,
-        });
-      }
-
-      console.log("[AI_RECOMMENDATION] Recomendações salvas com sucesso!");
-
-      // Return recommendations instead of redirecting
+      // Return recommendations directly without saving
       return finalRecommendations;
-    } catch (dbError) {
-      console.error("[SAVE_RECOMMENDATIONS_ERROR]", dbError);
-      throw dbError; // Propaga erro para ser tratado
+    } catch (error) {
+      console.error("[PROCESS_RECOMMENDATIONS_ERROR]", error);
+      throw error;
     }
   } catch (error) {
     console.error("[GET_RECOMMENDATIONS_ERROR]", error);

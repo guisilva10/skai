@@ -32,15 +32,16 @@ const cards = [
   },
   {
     title: "Análise inteligente com IA",
-    description: "Descubra a sua rotina ideal de skincare com IA",
+    description:
+      "Descubra a sua rotina ideal de skincare e receba dicas com IA",
     icon: <IconRobot />,
     href: "/app/chat",
     gradient: "",
   },
   {
-    title: "Catálogo de Produtos",
+    title: "Favoritos",
     description:
-      "Dê uma olhada em nosso catálogo e encontre os melhores produtos de skincare",
+      "Dê uma olhada em seus favoritos e encontre os melhores produtos de skincare",
     icon: <IconShoppingBag />,
     href: "/app/catalog",
     gradient: "",

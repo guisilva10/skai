@@ -136,9 +136,9 @@ export function QuizWizard({
         // Generate recommendations (it will use current user from session)
         await getRecommendationsForProfile();
 
-        // Redirect to catalog
+        // Redirect to recommendations page
         toast.success("Recomendações atualizadas com sucesso!");
-        router.push("/app/catalog");
+        router.push("/app/recommendations");
       } else {
         // User hasn't paid - redirect to checkout
         setLoadingMessage("Redirecionando para pagamento...");
@@ -187,7 +187,7 @@ export function QuizWizard({
   };
 
   const handleViewProducts = () => {
-    router.push("/app/catalog");
+    router.push("/app/recommendations");
   };
 
   const handleEditQuiz = () => {
@@ -224,7 +224,7 @@ export function QuizWizard({
           <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
             <AlertDialogAction onClick={handleViewProducts} className="w-full">
               <IconPackage className="mr-2 h-4 w-4" />
-              Ver Meus Produtos
+              Ver recomendações
             </AlertDialogAction>
             <AlertDialogCancel onClick={handleEditQuiz} className="w-full">
               <IconPencil className="mr-2 h-4 w-4" />
